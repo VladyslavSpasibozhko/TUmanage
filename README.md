@@ -37,13 +37,7 @@ src/front-end/
 
 ## Getting Started
 
-Generate route types and path handlers once before starting:
-
-```bash
-npm run generate:routes
-```
-
-Then start the dev server:
+Start the dev server:
 
 ```bash
 npm run dev
