@@ -1,0 +1,5 @@
+{
+  "role-admin":   { "id": "role-admin",   "name": "admin" },
+  "role-manager": { "id": "role-manager", "name": "manager" },
+  "role-member":  { "id": "role-member",  "name": "member" }
+}

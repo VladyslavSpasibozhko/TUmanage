@@ -1,0 +1,20 @@
+{
+  "rp-admin-task-create":  { "id": "rp-admin-task-create",  "roleId": "role-admin", "permissionId": "perm-task-create" },
+  "rp-admin-task-update":  { "id": "rp-admin-task-update",  "roleId": "role-admin", "permissionId": "perm-task-update" },
+  "rp-admin-task-delete":  { "id": "rp-admin-task-delete",  "roleId": "role-admin", "permissionId": "perm-task-delete" },
+  "rp-admin-task-assign":  { "id": "rp-admin-task-assign",  "roleId": "role-admin", "permissionId": "perm-task-assign" },
+  "rp-admin-user-manage":  { "id": "rp-admin-user-manage",  "roleId": "role-admin", "permissionId": "perm-user-manage" },
+  "rp-admin-user-invite":  { "id": "rp-admin-user-invite",  "roleId": "role-admin", "permissionId": "perm-user-invite" },
+  "rp-admin-role-manage":  { "id": "rp-admin-role-manage",  "roleId": "role-admin", "permissionId": "perm-role-manage" },
+  "rp-admin-group-manage": { "id": "rp-admin-group-manage", "roleId": "role-admin", "permissionId": "perm-group-manage" },
+
+  "rp-manager-task-create": { "id": "rp-manager-task-create", "roleId": "role-manager", "permissionId": "perm-task-create" },
+  "rp-manager-task-update": { "id": "rp-manager-task-update", "roleId": "role-manager", "permissionId": "perm-task-update" },
+  "rp-manager-task-delete": { "id": "rp-manager-task-delete", "roleId": "role-manager", "permissionId": "perm-task-delete" },
+  "rp-manager-task-assign": { "id": "rp-manager-task-assign", "roleId": "role-manager", "permissionId": "perm-task-assign" },
+  "rp-manager-user-manage": { "id": "rp-manager-user-manage", "roleId": "role-manager", "permissionId": "perm-user-manage" },
+  "rp-manager-user-invite": { "id": "rp-manager-user-invite", "roleId": "role-manager", "permissionId": "perm-user-invite" },
+
+  "rp-member-task-create": { "id": "rp-member-task-create", "roleId": "role-member", "permissionId": "perm-task-create" },
+  "rp-member-task-update": { "id": "rp-member-task-update", "roleId": "role-member", "permissionId": "perm-task-update" }
+}

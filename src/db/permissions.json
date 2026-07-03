@@ -1,0 +1,10 @@
+{
+  "perm-task-create": { "id": "perm-task-create", "name": "task:create", "description": "Create a task" },
+  "perm-task-update": { "id": "perm-task-update", "name": "task:update", "description": "Update a task" },
+  "perm-task-delete": { "id": "perm-task-delete", "name": "task:delete", "description": "Delete a task" },
+  "perm-task-assign": { "id": "perm-task-assign", "name": "task:assign", "description": "Assign a task to a user" },
+  "perm-user-manage": { "id": "perm-user-manage", "name": "user:manage", "description": "Add/remove users from a group" },
+  "perm-user-invite": { "id": "perm-user-invite", "name": "user:invite", "description": "Invite a user to a group" },
+  "perm-role-manage": { "id": "perm-role-manage", "name": "role:manage", "description": "Assign roles to users" },
+  "perm-group-manage": { "id": "perm-group-manage", "name": "group:manage", "description": "Create/update groups" }
+}
