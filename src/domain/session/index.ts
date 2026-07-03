@@ -1,10 +1,5 @@
 import { randomUUID } from "crypto";
-
-interface ISession {
-  id: string;
-  userId: string;
-  expiredAt: number;
-}
+import type { ISession } from "./types";
 
 const SESSION_LIFETIME_MS = 1000 * 60 * 60;
 
@@ -20,4 +15,6 @@ function isSessionActive(session: ISession): boolean {
   return Date.now() < session.expiredAt;
 }
 
-export { createSession, isSessionActive, type ISession };
+export * from "./types";
+export * from "./schema";
+export { createSession, isSessionActive };

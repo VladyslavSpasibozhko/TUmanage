@@ -1,11 +1,5 @@
 import { randomUUID } from "crypto";
-
-export interface IGroup {
-  id: string;
-  name: string;
-  createdBy: string;
-  createdAt: number;
-}
+import type { IGroup } from "./types";
 
 function createGroup(name: string, createdBy: string): IGroup {
   return {
@@ -24,4 +18,6 @@ function validateGroupName(name: string): boolean {
   return name.trim().length > 0;
 }
 
+export * from "./types";
+export * from "./schema";
 export { createGroup, updateGroup, validateGroupName };

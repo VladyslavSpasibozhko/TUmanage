@@ -1,14 +1,5 @@
 import { randomUUID } from "crypto";
-
-export type TaskStatus = "todo" | "in-progress" | "done";
-
-export interface ITask {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  createdAt: number;
-}
+import type { ITask, TaskStatus } from "./types";
 
 function createTask(title: string, description: string): ITask {
   return {
@@ -28,4 +19,6 @@ function validateTitle(title: string): boolean {
   return title.trim().length > 0;
 }
 
+export * from "./types";
+export * from "./schema";
 export { createTask, updateTaskStatus, validateTitle };

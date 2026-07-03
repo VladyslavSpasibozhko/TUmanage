@@ -1,11 +1,5 @@
 import { randomUUID } from "crypto";
-
-export interface ITaskAssignee {
-  id: string;
-  taskId: string;
-  userId: string;
-  assignedAt: number;
-}
+import type { ITaskAssignee } from "./types";
 
 function createTaskAssignee(taskId: string, userId: string): ITaskAssignee {
   return {
@@ -16,4 +10,6 @@ function createTaskAssignee(taskId: string, userId: string): ITaskAssignee {
   };
 }
 
+export * from "./types";
+export * from "./schema";
 export { createTaskAssignee };

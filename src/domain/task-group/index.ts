@@ -1,11 +1,5 @@
 import { randomUUID } from "crypto";
-
-export interface ITaskGroup {
-  id: string;
-  taskId: string;
-  groupId: string;
-  addedAt: number;
-}
+import type { ITaskGroup } from "./types";
 
 function createTaskGroup(taskId: string, groupId: string): ITaskGroup {
   return {
@@ -16,4 +10,6 @@ function createTaskGroup(taskId: string, groupId: string): ITaskGroup {
   };
 }
 
+export * from "./types";
+export * from "./schema";
 export { createTaskGroup };
