@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
-import type { IUser } from "./types";
+import type { IUser, IUserInput } from "./types";
 
-function createUser(name: string, email: string): IUser {
+function createUser({ email, name }: IUserInput): IUser {
   return {
     id: randomUUID(),
     name,

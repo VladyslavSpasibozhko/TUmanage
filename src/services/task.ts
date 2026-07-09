@@ -7,6 +7,7 @@ import { saveTaskAssignee } from "@/src/repositories/task-assignee";
 import { saveTaskGroup } from "@/src/repositories/task-group";
 import { getGroupMember } from "@/src/repositories/group-member";
 import { getPermissionNamesByRole } from "@/src/repositories/role-permission";
+import { outcome } from "@/src/shared/utils";
 
 async function createTaskForGroup(
   title: string,
@@ -17,17 +18,17 @@ async function createTaskForGroup(
 ) {
   try {
     if (!validateTitle(title)) {
-      return { ok: false, error: new Error("Task title cannot be empty") };
+      return outcome.failure(new Error("Task title cannot be empty"));
     }
 
     const member = await getGroupMember(requestingUserId, groupId);
     if (!member) {
-      return { ok: false, error: new Error("User is not a member of this group") };
+      return outcome.failure(new Error("User is not a member of this group"));
     }
 
     const permissionNames = await getPermissionNamesByRole(member.roleId);
     if (!canDo(permissionNames, "task:create")) {
-      return { ok: false, error: new Error("Permission denied: task:create") };
+      return outcome.failure(new Error("Permission denied: task:create"));
     }
 
     const task = createTask(title, description);
@@ -38,9 +39,9 @@ async function createTaskForGroup(
     await saveTaskAssignee(taskAssignee);
     await saveTaskGroup(taskGroup);
 
-    return { ok: true, data: { task, taskAssignee, taskGroup } };
+    return outcome.success({ task, taskAssignee, taskGroup });
   } catch (err) {
-    return { ok: false, error: err };
+    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
   }
 }
 

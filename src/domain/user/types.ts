@@ -4,3 +4,8 @@ export interface IUser {
   email: string;
   createdAt: number;
 }
+
+export interface IUserInput {
+  name: string;
+  email: string;
+}

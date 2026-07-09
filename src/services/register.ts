@@ -1,16 +1,17 @@
 import { createUser, validateEmail } from "@/src/domain/user";
 import { saveUser, getUserByEmail } from "@/src/repositories/user";
+import { outcome } from "@/src/shared/utils";
 import { createSession } from "./session";
 
 async function register(name: string, email: string) {
   try {
     if (!validateEmail(email)) {
-      return { ok: false, error: new Error("Invalid email format") };
+      return outcome.failure(new Error("Invalid email format"));
     }
 
     const existing = await getUserByEmail(email);
     if (existing) {
-      return { ok: false, error: new Error("Email already in use") };
+      return outcome.failure(new Error("Email already in use"));
     }
 
     const user = createUser(name, email);
@@ -18,12 +19,12 @@ async function register(name: string, email: string) {
 
     const sessionResult = await createSession(user.id);
     if (!sessionResult.ok) {
-      return { ok: false, error: sessionResult.error };
+      return outcome.failure(sessionResult.error);
     }
 
-    return { ok: true, data: { user, session: sessionResult.data } };
+    return outcome.success({ user, session: sessionResult.data });
   } catch (err) {
-    return { ok: false, error: err };
+    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
   }
 }
 

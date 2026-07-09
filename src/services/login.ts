@@ -1,26 +1,27 @@
 import { validateEmail } from "@/src/domain/user";
 import { getUserByEmail } from "@/src/repositories/user";
+import { outcome } from "@/src/shared/utils";
 import { createSession } from "./session";
 
 async function login(email: string) {
   try {
     if (!validateEmail(email)) {
-      return { ok: false, error: new Error("Invalid email format") };
+      return outcome.failure(new Error("Invalid email format"));
     }
 
     const user = await getUserByEmail(email);
     if (!user) {
-      return { ok: false, error: new Error("User not found") };
+      return outcome.failure(new Error("User not found"));
     }
 
     const sessionResult = await createSession(user.id);
     if (!sessionResult.ok) {
-      return { ok: false, error: sessionResult.error };
+      return outcome.failure(sessionResult.error);
     }
 
-    return { ok: true, data: { user, session: sessionResult.data } };
+    return outcome.success({ user, session: sessionResult.data });
   } catch (err) {
-    return { ok: false, error: err };
+    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
   }
 }
 

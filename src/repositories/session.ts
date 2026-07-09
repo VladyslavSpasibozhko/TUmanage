@@ -18,4 +18,11 @@ async function getSession(id: string) {
   return sessions[id] ?? null;
 }
 
-export { createSession, getSession };
+async function deleteSession(id: string) {
+  const sessions = await readJson<Record<string, ISession>>(documentPath);
+  if (!sessions) return;
+  delete sessions[id];
+  await writeJson(documentPath, sessions);
+}
+
+export { createSession, getSession, deleteSession };

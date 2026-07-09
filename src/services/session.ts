@@ -3,14 +3,15 @@ import {
   getSession,
 } from "@/src/repositories/session";
 import { createSession as create, isSessionActive } from "@/src/domain/session";
+import { outcome } from "@/src/shared/utils";
 
 async function createSession(userId: string) {
   try {
     const session = create(userId);
     await saveSession(session);
-    return { ok: true, data: session };
+    return outcome.success(session);
   } catch (err) {
-    return { ok: false, error: err };
+    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
@@ -20,9 +21,9 @@ async function verifiedSession(id: string) {
     if (!session) {
       throw new Error("Session with id " + id + " not found");
     }
-    return { ok: true, data: { active: isSessionActive(session) } };
+    return outcome.success({ active: isSessionActive(session) });
   } catch (err) {
-    return { ok: false, error: err };
+    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
