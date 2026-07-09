@@ -1,0 +1,15 @@
+{
+  "welcome": {
+    "text": "Welcome",
+    "description": "Generic welcome greeting shown on the landing page"
+  },
+  "itemsCount": {
+    "text": {
+      "one": "{{count}} item",
+      "few": "{{count}} items",
+      "many": "{{count}} items",
+      "other": "{{count}} items"
+    },
+    "description": "Generic count label; count = number of items"
+  }
+}
