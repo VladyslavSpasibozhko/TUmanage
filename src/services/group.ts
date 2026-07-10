@@ -3,7 +3,7 @@ import { createGroupMember } from "@/src/domain/group-member";
 import { saveGroup } from "@/src/repositories/group";
 import { saveGroupMember } from "@/src/repositories/group-member";
 import { getRoleByName } from "@/src/repositories/role";
-import { outcome } from "@/src/shared/utils";
+import { outcome, error } from "@/src/shared/utils";
 
 async function createGroupWithAdmin(name: string, creatorUserId: string) {
   try {
@@ -24,7 +24,7 @@ async function createGroupWithAdmin(name: string, creatorUserId: string) {
 
     return outcome.success({ group, member });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err.message : String(err));
+    return outcome.failure(error.getErrorMessage(err));
   }
 }
 

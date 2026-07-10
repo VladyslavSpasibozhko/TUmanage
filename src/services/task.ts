@@ -7,7 +7,7 @@ import { saveTaskAssignee } from "@/src/repositories/task-assignee";
 import { saveTaskGroup } from "@/src/repositories/task-group";
 import { getGroupMember } from "@/src/repositories/group-member";
 import { getPermissionNamesByRole } from "@/src/repositories/role-permission";
-import { outcome } from "@/src/shared/utils";
+import { outcome, error } from "@/src/shared/utils";
 
 async function createTaskForGroup(
   title: string,
@@ -41,7 +41,7 @@ async function createTaskForGroup(
 
     return outcome.success({ task, taskAssignee, taskGroup });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err.message : String(err));
+    return outcome.failure(error.getErrorMessage(err));
   }
 }
 

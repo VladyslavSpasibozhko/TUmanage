@@ -31,6 +31,20 @@ Represents a registered person in the system.
 
 ---
 
+### Credential
+Represents the login secret for a user. Keyed by email.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | `string` | Unique email address, used as the lookup key |
+| `password` | `string` | Login secret (min length 8) |
+
+**Rules:**
+- Created together with the user during registration
+- Checked against the submitted password on login
+
+---
+
 ### Session
 Represents an active login. Always tied to a user.
 
@@ -203,17 +217,21 @@ Task ──→ TaskGroup    ──→ Group
 ## Auth Flow
 
 ### Registration
-1. Client submits `name` + `email`
-2. Email is validated (format + uniqueness)
-3. `User` is created
-4. `Session` is created linked to the new user
-5. Session cookie is set — user is immediately logged in
+1. Client submits `name` + `email` + `password`
+2. `email` + `password` are validated against the credential schema (format, min length)
+3. Email is checked for uniqueness against existing `Credential`s
+4. `Credential` is created (`email` + `password`)
+5. `User` is created
+6. `Session` is created linked to the new user
+7. Session cookie is set — user is immediately logged in
 
 ### Login (existing user)
-1. Client submits credentials
-2. Existing user is found by email
-3. `Session` is created linked to that user
-4. Session cookie is set
+1. Client submits `email` + `password`
+2. `email` + `password` are validated against the credential schema
+3. `Credential` is looked up by email and the password is checked against it
+4. Existing `User` is found by email
+5. `Session` is created linked to that user
+6. Session cookie is set
 
 ### Logout
 1. Session is deleted

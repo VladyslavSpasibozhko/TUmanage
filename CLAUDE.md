@@ -26,6 +26,11 @@ domain/         → domain:         pure business logic, types, no side effects
 - `repositories/` — file I/O, database queries, no business logic
 - `app/api/` — set cookies, return HTTP responses, call one service per handler
 
+**services/ input types:**
+- A service's input type must be derived from the `domain/` entity types it uses to create/update those entities — never hand-rolled with duplicate field declarations
+- Compose via `Pick`/`Omit`/intersection of the relevant `domain/` types (e.g. a service using `createUser` + `createCredential` derives its input from `IUserInput` and `Pick<ICredential, "password">`, not a fresh `{ name, email, password }` interface)
+- If a service's input is identical to one entity's shape, alias it directly (`type ILoginInput = ICredential`) rather than redeclaring the fields
+
 ## Frontend Architecture (FSD)
 
 All client-side code lives under `src/front-end/` and follows **Feature-Sliced Design**. Layers are ordered top-to-bottom — upper layers may import from lower ones, never the reverse.

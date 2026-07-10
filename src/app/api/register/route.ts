@@ -1,12 +1,12 @@
-import { login } from "@/src/services/login";
+import { register } from "@/src/services/register";
 import { error } from "@/src/shared/utils";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { name, email, password } = await request.json();
 
-    const result = await login({ email, password });
+    const result = await register({ name, email, password });
     if (!result.ok) {
       throw result.error;
     }

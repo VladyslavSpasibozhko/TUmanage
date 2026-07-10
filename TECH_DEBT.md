@@ -30,3 +30,29 @@ are hardcoded English strings.
 
 Fix: wire services to accept/use an `ITranslator` (or a locale) and route
 failure messages through translation keys instead of literal strings.
+
+## Passwords are stored and compared in plain text
+
+`AUTH_PLAN.md` originally called for `hashPassword`/`verifyPassword` in
+`domain/credential` (Node's `crypto.scrypt` with a per-password salt). What
+actually shipped: `repositories/credential.ts` writes `ICredential.password`
+as-is to `credentials.json`, and `services/login.ts` compares it with
+`credential.password !== password`. Any read access to the credentials file
+(or a backup/leak of it) exposes every password directly.
+
+Fix: add `hashPassword`/`verifyPassword` to `domain/credential`, hash in
+`register.ts` before `createCredential`/`saveCredential`, and compare via
+`verifyPassword` in `login.ts` instead of a direct string comparison.
+
+## API routes collapse every failure to HTTP 500
+
+`app/api/login`, `app/api/register`, and `app/api/logout` all catch every
+failure — validation errors, "email already in use", auth failures, expired
+sessions, genuine server errors — and respond with the same
+`{ success: false, err: { code: 500, ... } }` shape. Clients can't
+distinguish "bad input" from "server broke" from the status code alone, and
+have to parse the `err` message string instead.
+
+Fix: map known `outcome.failure` cases to proper status codes (400 for
+validation, 401 for auth failures, 409 for email-already-in-use, etc.) and
+reserve 500 for the actual `catch` block (unexpected exceptions).

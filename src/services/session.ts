@@ -3,7 +3,7 @@ import {
   getSession,
 } from "@/src/repositories/session";
 import { createSession as create, isSessionActive } from "@/src/domain/session";
-import { outcome } from "@/src/shared/utils";
+import { outcome, error } from "@/src/shared/utils";
 
 async function createSession(userId: string) {
   try {
@@ -11,7 +11,7 @@ async function createSession(userId: string) {
     await saveSession(session);
     return outcome.success(session);
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err.message : String(err));
+    return outcome.failure(error.getErrorMessage(err));
   }
 }
 
@@ -23,7 +23,7 @@ async function verifiedSession(id: string) {
     }
     return outcome.success({ active: isSessionActive(session) });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err.message : String(err));
+    return outcome.failure(error.getErrorMessage(err));
   }
 }
 

@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   if (!sessionId) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-
+  //remove
   const { ok, data } = await verifiedSession(sessionId);
   console.log({ ok, data });
   if (ok && data?.active) return NextResponse.next();

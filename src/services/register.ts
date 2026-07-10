@@ -1,30 +1,58 @@
-import { createUser, validateEmail } from "@/src/domain/user";
-import { saveUser, getUserByEmail } from "@/src/repositories/user";
-import { outcome } from "@/src/shared/utils";
+import {
+  createUser,
+  userInputSchema,
+  type IUserInput,
+} from "@/src/domain/user";
+import {
+  createCredential,
+  credentialSchema,
+  type ICredential,
+} from "@/src/domain/credential";
+import { saveUser } from "@/src/repositories/user";
+import {
+  saveCredential,
+  getCredentialByEmail,
+} from "@/src/repositories/credential";
+import { validate } from "@/src/shared/validation";
+import { outcome, error } from "@/src/shared/utils";
 import { createSession } from "./session";
 
-async function register(name: string, email: string) {
+type IRegisterInput = IUserInput & Pick<ICredential, "password">;
+
+async function register({ name, email, password }: IRegisterInput) {
   try {
-    if (!validateEmail(email)) {
-      return outcome.failure("Invalid email format");
+    const credentialValidation = validate(credentialSchema, {
+      email,
+      password,
+    });
+    if (!credentialValidation.valid) {
+      return outcome.failure(credentialValidation.errors.join(", "));
     }
 
-    const existing = await getUserByEmail(email);
+    const userValidation = validate(userInputSchema, { name, email });
+    if (!userValidation.valid) {
+      return outcome.failure(userValidation.errors.join(", "));
+    }
+
+    const existing = await getCredentialByEmail(email);
     if (existing) {
       return outcome.failure("Email already in use");
     }
 
-    const user = createUser(name, email);
+    const credential = createCredential(email, password);
+    await saveCredential(credential);
+
+    const user = createUser({ name, email });
     await saveUser(user);
 
-    const sessionResult = await createSession(user.id);
-    if (!sessionResult.ok) {
-      return outcome.failure(sessionResult.error);
+    const session = await createSession(user.id);
+    if (!session.ok) {
+      return outcome.failure(session.error);
     }
 
-    return outcome.success({ user, session: sessionResult.data });
+    return outcome.success(session.data);
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err.message : String(err));
+    return outcome.failure(error.getErrorMessage(err));
   }
 }
 

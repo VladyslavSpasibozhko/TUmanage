@@ -18,10 +18,10 @@ Originally this plan put `passwordHash` directly on `IUser`. That was wrong: `Us
 
 Instead, credentials are their own entity, linked to `User` by `email`:
 
-- `domain/credential/` — `ICredential { email: string; password: string }` (password stored as a hash, despite the field name), `credentialSchema` (email + password, min length 8). No domain functions yet — `hashPassword`/`verifyPassword` still need to be added here.
+- `domain/credential/` — `ICredential { email: string; password: string }`, `credentialSchema` (email + password, min length 8), plus `createCredential`/`updateCredential`. Password is currently stored and compared as plain text — hashing was planned (`hashPassword`/`verifyPassword` via `crypto.scrypt`) but never implemented; tracked as tech debt in [TECH_DEBT.md](TECH_DEBT.md) instead of in this plan.
 - `repositories/credential.ts` — `saveCredential`, `getCredentialByEmail`. Backed by `src/db/credentials.json`.
 
-`register` now does two separate saves: a `User` (profile) and a `Credential` (email + password hash). `login` looks up the `Credential` by email to verify the password, then looks up the `User` by email to build the session.
+`register` now does two separate saves: a `User` (profile) and a `Credential` (email + password, plain text). `login` looks up the `Credential` by email to compare the password directly, then looks up the `User` by email to build the session.
 
 ## Note on domain folder structure
 
@@ -31,7 +31,7 @@ Instead, credentials are their own entity, linked to `User` by `email`:
 
 Every service function returns `success(data)` or `failure(error)` from `src/shared/utils/outcome` (barrel: `import { outcome } from "@/src/shared/utils"`) instead of hand-writing `{ ok, data, error }` object literals. This is a project-wide convention now, not specific to auth — `login`, `register`, `session`, `task`, and `group` services have already been migrated.
 
-`Result<T>` (`{ ok: true; data: T } | { ok: false; error: Error }`) is defined in `shared/utils/outcome/types.ts`.
+`Result<T>` (`{ ok: true; data: T } | { ok: false; error: string }`) is defined in `shared/utils/outcome/types.ts` — `error` is a plain string, not an `Error` instance; callers normalize caught exceptions via `shared/utils/error`'s `getErrorMessage`.
 
 ## Defaults assumed for this plan (flag if wrong, otherwise proceeding)
 
@@ -49,11 +49,10 @@ Every service function returns `success(data)` or `failure(error)` from `src/sha
 ### `src/domain/credential/` (new)
 - `types.ts` — `ICredential { email, password }` — done.
 - `schema.ts` — `credentialSchema` — done.
-- `index.ts` — currently just barrels `types`/`schema`. Still needed:
-  - `validatePassword(password: string): boolean` — length check.
-  - `hashPassword(password: string): string` — `crypto.scryptSync` + random salt, returned as a single encoded string (e.g. `salt:hash`).
-  - `verifyPassword(password: string, hash: string): boolean` — recompute hash with the stored salt, constant-time compare (`crypto.timingSafeEqual`).
-  - A `loginInputSchema`/credential-check schema (email + password) — reuse `credentialSchema`'s `$defs` rather than duplicating field definitions.
+- `index.ts` — `createCredential`, `updateCredential` — done. Password hashing
+  (`hashPassword`/`verifyPassword`) was originally planned here but was never
+  implemented; it's tracked as tech debt (see [TECH_DEBT.md](TECH_DEBT.md))
+  rather than as an open item of this plan.
 
 ### `src/domain/session/`
 - Add `refreshSession(session: ISession): ISession` — pure function, returns `{ ...session, expiredAt: Date.now() + SESSION_LIFETIME_MS }`. Does not itself check `isSessionActive` — that check happens where the decision is made (service layer), keeping this function a simple transformation. **Not yet implemented.**
@@ -82,16 +81,20 @@ Every service function returns `success(data)` or `failure(error)` from `src/sha
 
 All service functions below must return via `outcome.success(...)` / `outcome.failure(...)`, not raw object literals.
 
-### `src/services/register.ts` — **needs rework, currently broken**
-- Accept `password`. Validate via `domain/credential`'s `validatePassword`, hash via `hashPassword`.
-- Create `User` via `createUser({ name, email })` (no password arg) and save it.
-- Create `Credential` via `saveCredential({ email, password: hash })`.
-- Known pre-existing gap (not fixed in this pass, just noting): if session creation fails after the user/credential are saved, the records are orphaned with no session — the JSON-file store has no transactions. Acceptable for now.
+### `src/services/register.ts` — done
+- Accepts `{ name, email, password }` (`IRegisterInput`, derived from `IUserInput & Pick<ICredential, "password">`).
+- Validates `{ name, email }` against `userInputSchema` and `{ email, password }` against `credentialSchema`.
+- Creates `Credential` via `createCredential`/`saveCredential`, then `User` via `createUser`/`saveUser`, then a `Session`.
+- Returns `outcome.success(session.data)` — just the session, not `{ user, session }`. Client no longer gets the user object back in the register response body; intentional as of this pass.
+- Password is stored as plain text (see hashing note above / TECH_DEBT.md).
+- Known pre-existing gap (not fixed in this pass, just noting): if session creation fails after the user/credential are saved, the records are orphaned with no session — the JSON-file store has no transactions. Tracked in TECH_DEBT.md along with the equivalent gap in `group.ts`/`task.ts`.
 
-### `src/services/login.ts` — **needs rework, currently broken**
-- Accept `password`. Look up `Credential` by email via `getCredentialByEmail`.
-- If credential not found **or** password fails `verifyPassword` → return the same generic error (identical message/shape) so callers can't distinguish the two cases.
-- On success, look up the `User` by email, create a new session same as today — no invalidation of the user's other sessions.
+### `src/services/login.ts` — done
+- Accepts `{ email, password }` (`ILoginInput`, aliased directly to `ICredential`).
+- Looks up `Credential` by email and compares `password` directly (plain text — see TECH_DEBT.md).
+- If credential not found **or** password mismatches → the same generic `"Invalid email or password"` failure, so callers can't distinguish the two cases.
+- On success, looks up the `User` by email, creates a new session — no invalidation of the user's other sessions.
+- Returns `outcome.success(session.data)` — same shape change as `register`.
 
 ### `src/services/session.ts`
 - `createSession`/`verifiedSession` — done, migrated to `outcome`.
@@ -102,23 +105,24 @@ All service functions below must return via `outcome.success(...)` / `outcome.fa
   4. Else compute `refreshSession` (domain) and persist via `createSession` (repo, upsert).
   5. Return `outcome.success(session)`.
 
-### `src/services/logout.ts` (new) — **not yet implemented**
-- `logout(sessionId: string)` — calls `deleteSession(sessionId)`. Idempotent: succeeds even if the session was already gone. Return via `outcome`.
+### `src/services/logout.ts` — done
+- `logout(sessionId: string)` — looks up the session via `getSession`; if not found, returns `outcome.success(null)` (already logged out — same end state as a successful logout, so it's not treated as an error); otherwise calls `deleteSession` and returns `outcome.success(null)`. Idempotent, per the original decision in §3.
 
 ---
 
 ## Phase 4 — API layer
 
-### `src/app/api/register/route.ts` (new — doesn't exist today)
-- Parse `{ name, email, password }`, call `register` service, set session cookie on success.
-- Map errors to proper status codes (400 validation, 409 email-in-use) instead of the blanket 500 pattern currently in `login/route.ts`.
+### `src/app/api/register/route.ts` — done
+- Parses `{ name, email, password }`, calls `register` service, sets the session cookie (`data.id`/`data.expiredAt`) on success.
+- Still blanket-500s every failure (validation, email-in-use, unexpected exceptions all return `code: 500`) — proper status-code mapping (400/409/etc.) was not done in this pass; tracked in TECH_DEBT.md.
 
-### `src/app/api/login/route.ts` (update)
-- Accept `password` in the request body.
-- On failure, respond with the generic message and 401 — **do not** serialize the raw `Error` object back to the client (current code does `err: { code: 500, err: err }`, which leaks internal error text; fix as part of this change).
+### `src/app/api/login/route.ts` — done
+- Accepts `password` in the request body.
+- The raw-`Error`-object leak is fixed: caught values are normalized via `shared/utils/error`'s `getErrorMessage` before being put in the response, so `err.err` is always a string now.
+- Still does not map failures to distinct status codes (auth failure, validation, etc. all come back as `code: 500`) — same gap as `register`, tracked in TECH_DEBT.md.
 
-### `src/app/api/logout/route.ts` (implement — currently empty)
-- Read session id from the cookie, call `logout` service, clear the cookie, respond success regardless of whether the session existed (idempotent per the use-case doc).
+### `src/app/api/logout/route.ts` — done
+- Reads the session id from the cookie. If present, calls `logout` service (idempotent, see above). If absent, skips straight to clearing the cookie and responding success — no session cookie is itself treated as "already logged out," not an error.
 
 ### `src/app/api/session/refresh/route.ts` (new)
 - Read session id from cookie, call `refreshSession` service.
