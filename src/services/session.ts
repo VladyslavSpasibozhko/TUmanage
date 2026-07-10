@@ -11,7 +11,7 @@ async function createSession(userId: string) {
     await saveSession(session);
     return outcome.success(session);
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 
@@ -23,7 +23,7 @@ async function verifiedSession(id: string) {
     }
     return outcome.success({ active: isSessionActive(session) });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 

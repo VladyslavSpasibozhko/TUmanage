@@ -6,12 +6,12 @@ import { createSession } from "./session";
 async function register(name: string, email: string) {
   try {
     if (!validateEmail(email)) {
-      return outcome.failure(new Error("Invalid email format"));
+      return outcome.failure("Invalid email format");
     }
 
     const existing = await getUserByEmail(email);
     if (existing) {
-      return outcome.failure(new Error("Email already in use"));
+      return outcome.failure("Email already in use");
     }
 
     const user = createUser(name, email);
@@ -24,7 +24,7 @@ async function register(name: string, email: string) {
 
     return outcome.success({ user, session: sessionResult.data });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 

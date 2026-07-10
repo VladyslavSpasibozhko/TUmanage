@@ -18,17 +18,17 @@ async function createTaskForGroup(
 ) {
   try {
     if (!validateTitle(title)) {
-      return outcome.failure(new Error("Task title cannot be empty"));
+      return outcome.failure("Task title cannot be empty");
     }
 
     const member = await getGroupMember(requestingUserId, groupId);
     if (!member) {
-      return outcome.failure(new Error("User is not a member of this group"));
+      return outcome.failure("User is not a member of this group");
     }
 
     const permissionNames = await getPermissionNamesByRole(member.roleId);
     if (!canDo(permissionNames, "task:create")) {
-      return outcome.failure(new Error("Permission denied: task:create"));
+      return outcome.failure("Permission denied: task:create");
     }
 
     const task = createTask(title, description);
@@ -41,7 +41,7 @@ async function createTaskForGroup(
 
     return outcome.success({ task, taskAssignee, taskGroup });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 

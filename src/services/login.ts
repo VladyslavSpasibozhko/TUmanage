@@ -6,12 +6,12 @@ import { createSession } from "./session";
 async function login(email: string) {
   try {
     if (!validateEmail(email)) {
-      return outcome.failure(new Error("Invalid email format"));
+      return outcome.failure("Invalid email format");
     }
 
     const user = await getUserByEmail(email);
     if (!user) {
-      return outcome.failure(new Error("User not found"));
+      return outcome.failure("User not found");
     }
 
     const sessionResult = await createSession(user.id);
@@ -21,7 +21,7 @@ async function login(email: string) {
 
     return outcome.success({ user, session: sessionResult.data });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 

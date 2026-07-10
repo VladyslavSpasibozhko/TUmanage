@@ -6,9 +6,9 @@ A uniform return shape for `services/` functions. Replaces hand-written `{ ok, d
 
 | File | Description |
 |------|-------------|
-| `types.ts` | `Result<T>` — `{ ok: true; data: T } \| { ok: false; error: Error }` |
+| `types.ts` | `Result<T>` — `{ ok: true; data: T } \| { ok: false; error: string }` |
 | `success.ts` | `success<T>(data: T): Result<T>` |
-| `failure.ts` | `failure(error: Error): Result<never>` |
+| `failure.ts` | `failure(error: string): Result<never>` |
 | `index.ts` | Barrel re-export of all of the above |
 
 ## Usage
@@ -20,12 +20,12 @@ async function login(email: string, password: string) {
   try {
     const credential = await getCredentialByEmail(email);
     if (!credential) {
-      return outcome.failure(new Error("Invalid email or password"));
+      return outcome.failure("Invalid email or password");
     }
     // ...
     return outcome.success({ user, session });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 ```
@@ -33,5 +33,5 @@ async function login(email: string, password: string) {
 ## Usage rules
 
 - Every function in `src/services/` must return `outcome.success(...)` or `outcome.failure(...)` — no raw `{ ok, data, error }` literals
-- `failure` always takes an `Error`, not `unknown` — wrap caught values with `err instanceof Error ? err : new Error(String(err))` before passing them in
+- `failure` always takes a `string`, not `unknown` — wrap caught values with `err instanceof Error ? err.message : String(err)` before passing them in
 - Import via the `shared/utils` barrel (`import { outcome } from "@/src/shared/utils"`), not directly from `shared/utils/outcome`

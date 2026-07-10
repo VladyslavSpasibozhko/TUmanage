@@ -8,12 +8,12 @@ import { outcome } from "@/src/shared/utils";
 async function createGroupWithAdmin(name: string, creatorUserId: string) {
   try {
     if (!validateGroupName(name)) {
-      return outcome.failure(new Error("Group name cannot be empty"));
+      return outcome.failure("Group name cannot be empty");
     }
 
     const adminRole = await getRoleByName("admin");
     if (!adminRole) {
-      return outcome.failure(new Error("Admin role not found"));
+      return outcome.failure("Admin role not found");
     }
 
     const group = createGroup(name, creatorUserId);
@@ -24,7 +24,7 @@ async function createGroupWithAdmin(name: string, creatorUserId: string) {
 
     return outcome.success({ group, member });
   } catch (err) {
-    return outcome.failure(err instanceof Error ? err : new Error(String(err)));
+    return outcome.failure(err instanceof Error ? err.message : String(err));
   }
 }
 
