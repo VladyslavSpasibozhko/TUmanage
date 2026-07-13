@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate:routes": "node src/libs/routing/scripts/generate.mjs --app=/src/app"
+    "generate:openapi": "node scripts/generate-openapi.mjs --api=/src/app/api --output=/src/docs/openapi.generated.json"
   },
   "dependencies": {
     "ajv": "^8.20.0",
