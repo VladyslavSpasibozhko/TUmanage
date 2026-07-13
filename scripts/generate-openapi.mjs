@@ -8,10 +8,11 @@ const { values } = parseArgs({
   options: {
     api: { type: "string" },
     output: { type: "string" },
+    docsFile: { type: "string" },
   },
 });
 
-function findDocsFiles(dir) {
+function findDocsFiles(dir, docsFileName) {
   const results = [];
 
   for (const entry of readdirSync(dir)) {
@@ -19,8 +20,8 @@ function findDocsFiles(dir) {
     const stat = statSync(fullPath);
 
     if (stat.isDirectory()) {
-      results.push(...findDocsFiles(fullPath));
-    } else if (entry === "_docs.json") {
+      results.push(...findDocsFiles(fullPath, docsFileName));
+    } else if (entry === docsFileName) {
       results.push(fullPath);
     }
   }
@@ -65,8 +66,8 @@ function addToPaths(paths, entry) {
   paths[path][method] = toOperation(entry);
 }
 
-function build(apiDir, outputFile) {
-  const docsFiles = findDocsFiles(apiDir);
+function build(apiDir, outputFile, docsFileName) {
+  const docsFiles = findDocsFiles(apiDir, docsFileName);
   const paths = {};
 
   for (const file of docsFiles) {
@@ -92,22 +93,26 @@ function build(apiDir, outputFile) {
   docsFiles.forEach((f) => console.log(`  ${f.replace(ROOT + "/", "")}`));
 }
 
+const usage =
+  "Example: node generate-openapi.mjs --api=/src/app/api --output=/src/docs/openapi.generated.json --docsFile=_docs.json";
+
 if (!values.api) {
-  console.error(
-    "Error: --api argument is required. Example: node generate-openapi.mjs --api=/src/app/api --output=/openapi.generated.json",
-  );
+  console.error(`Error: --api argument is required. ${usage}`);
   process.exit(1);
 }
 
 if (!values.output) {
-  console.error(
-    "Error: --output argument is required. Example: node generate-openapi.mjs --api=/src/app/api --output=/openapi.generated.json",
-  );
+  console.error(`Error: --output argument is required. ${usage}`);
+  process.exit(1);
+}
+
+if (!values.docsFile) {
+  console.error(`Error: --docsFile argument is required. ${usage}`);
   process.exit(1);
 }
 
 try {
-  build(join(ROOT, values.api), join(ROOT, values.output));
+  build(join(ROOT, values.api), join(ROOT, values.output), values.docsFile);
 } catch (err) {
   console.error("Error:", err.message);
   process.exit(1);
