@@ -1,0 +1,39 @@
+{
+  "title": "Logout",
+  "path": "/api/logout",
+  "method": "POST",
+  "description": "Ends the current session (the one identified by the request's session cookie). Idempotent: if no session cookie is present, or the session was already deleted, it still responds as a success.",
+  "input": null,
+  "output": {
+    "200": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "success": { "const": true },
+            "data": { "const": null }
+          },
+          "required": ["success", "data"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "success": { "const": false },
+            "err": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "number" },
+                "err": { "type": "string" }
+              },
+              "required": ["code", "err"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["success", "err"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

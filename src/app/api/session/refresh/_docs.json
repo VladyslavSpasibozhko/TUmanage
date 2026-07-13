@@ -1,0 +1,65 @@
+{
+  "title": "Refresh Session",
+  "path": "/api/session/refresh",
+  "method": "POST",
+  "description": "Extends the expiry of the currently active session (identified by the request's session cookie). An expired or missing session cannot be refreshed and requires logging in again.",
+  "input": null,
+  "output": {
+    "200": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "success": { "const": true },
+            "data": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "userId": { "type": "string", "format": "uuid" },
+                "expiredAt": { "type": "number" }
+              },
+              "required": ["id", "userId", "expiredAt"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["success", "data"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "success": { "const": false },
+            "err": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "number" },
+                "err": { "type": "string" }
+              },
+              "required": ["code", "err"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["success", "err"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "401": {
+      "type": "object",
+      "properties": {
+        "success": { "const": false },
+        "err": {
+          "type": "object",
+          "properties": {
+            "code": { "const": 401 },
+            "err": { "type": "string" }
+          },
+          "required": ["code", "err"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["success", "err"],
+      "additionalProperties": false
+    }
+  }
+}

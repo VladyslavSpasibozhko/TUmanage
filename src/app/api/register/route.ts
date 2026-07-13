@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       expires: data.expiredAt,
     });
 
-    return Response.json({ success: true, data });
+    return Response.json({ success: true, data }, { status: 201 });
   } catch (err) {
     return Response.json({
       success: false,
