@@ -55,7 +55,7 @@ Every service function returns `success(data)` or `failure(error)` from `src/sha
   rather than as an open item of this plan.
 
 ### `src/domain/session/`
-- Add `refreshSession(session: ISession): ISession` — pure function, returns `{ ...session, expiredAt: Date.now() + SESSION_LIFETIME_MS }`. Does not itself check `isSessionActive` — that check happens where the decision is made (service layer), keeping this function a simple transformation. **Not yet implemented.**
+- `refreshSession(session: ISession): ISession` — done. Pure function, returns `{ ...session, expiredAt: Date.now() + SESSION_LIFETIME_MS }`. Does not itself check `isSessionActive` — that check happens where the decision is made (service layer), keeping this function a simple transformation.
 
 ### `src/domain/user/`
 - No password-related changes — confirmed reverted to id/name/email/createdAt only.
@@ -98,12 +98,13 @@ All service functions below must return via `outcome.success(...)` / `outcome.fa
 
 ### `src/services/session.ts`
 - `createSession`/`verifiedSession` — done, migrated to `outcome`.
-- Add `refreshSession(sessionId: string)` — **not yet implemented**:
+- `refreshSession(sessionId: string)` — done:
   1. Fetch session via `getSession`.
   2. If not found → `outcome.failure`.
   3. If `isSessionActive(session)` is false → `outcome.failure` (no reviving expired sessions).
   4. Else compute `refreshSession` (domain) and persist via `createSession` (repo, upsert).
-  5. Return `outcome.success(session)`.
+  5. Return `outcome.success(refreshed session)`.
+  - Not idempotent by design: every successful call extends `expiredAt` further from `Date.now()` at call time — repeated calls are safe but each one pushes expiry again, unlike `logout`'s idempotent end-state.
 
 ### `src/services/logout.ts` — done
 - `logout(sessionId: string)` — looks up the session via `getSession`; if not found, returns `outcome.success(null)` (already logged out — same end state as a successful logout, so it's not treated as an error); otherwise calls `deleteSession` and returns `outcome.success(null)`. Idempotent, per the original decision in §3.
@@ -114,7 +115,8 @@ All service functions below must return via `outcome.success(...)` / `outcome.fa
 
 ### `src/app/api/register/route.ts` — done
 - Parses `{ name, email, password }`, calls `register` service, sets the session cookie (`data.id`/`data.expiredAt`) on success.
-- Still blanket-500s every failure (validation, email-in-use, unexpected exceptions all return `code: 500`) — proper status-code mapping (400/409/etc.) was not done in this pass; tracked in TECH_DEBT.md.
+- Success response now returns `201 Created` (resource creation), fixed as a small follow-up in this pass.
+- Still blanket-200s every failure (validation, email-in-use, unexpected exceptions all return `code: 500` in the body but no distinct HTTP status) — proper status-code mapping (400/409/etc.) was not done in this pass; tracked in TECH_DEBT.md.
 
 ### `src/app/api/login/route.ts` — done
 - Accepts `password` in the request body.
@@ -124,10 +126,11 @@ All service functions below must return via `outcome.success(...)` / `outcome.fa
 ### `src/app/api/logout/route.ts` — done
 - Reads the session id from the cookie. If present, calls `logout` service (idempotent, see above). If absent, skips straight to clearing the cookie and responding success — no session cookie is itself treated as "already logged out," not an error.
 
-### `src/app/api/session/refresh/route.ts` (new)
+### `src/app/api/session/refresh/route.ts` — done
 - Read session id from cookie, call `refreshSession` service.
-- Success → set the cookie with the new `expiredAt`, return the new expiry.
-- Failure (expired or not found) → 401, clear cookie, front-end redirects to login.
+- Success → set the cookie with the new `expiredAt`, return the new expiry (`200`).
+- Failure (expired or not found) → `401`, clear cookie, front-end redirects to login.
+- No cookie present at all → treated as a genuine error (falls into the `catch` block, `200` with `code: 500` in the body) rather than a `401` — same status-code gap as the other routes.
 
 ---
 
@@ -146,17 +149,21 @@ This phase is scoped separately since it wasn't part of the backend decisions ab
 
 ## Sequencing
 
-1. Domain (`credential.ts` hashing/verification functions, `session.ts` refresh)
+1. Domain (`credential.ts` hashing/verification functions — still pending, tracked in TECH_DEBT.md; `session.ts` refresh — done)
 2. Repositories (`credential` — done, `deleteSession` — done)
-3. Services (`register`, `login` rework for credential split; `logout`, `session.refreshSession` new)
-4. API routes (`register`, `login` update, `logout` implement, `session/refresh` new)
-5. Front-end forms + wiring
+3. Services (`register`, `login` rework for credential split — done; `logout` — done; `session.refreshSession` — done)
+4. API routes (`register`, `login`, `logout`, `session/refresh` — all done)
+5. Front-end forms + wiring — **not started**
 6. Manual verification of each decided behavior:
    - Registering logs the user in immediately, no verification step.
    - Two logins from "different devices" both remain valid sessions simultaneously.
    - Wrong password and unknown email produce the identical error response.
    - Logout removes only the current session; a second session for the same user still works.
    - Refreshing an active session extends `expiredAt`; refreshing an expired session is rejected and forces re-login.
+
+## API documentation
+
+Each route above has a colocated `_docs.json` (e.g. `src/app/api/register/_docs.json`) describing its request/response shape, generated via the `/document-api-route` project command. These are merged into one OpenAPI document served live at `GET /api/openapi`. See [src/docs/README.md](src/docs/README.md) for the full pipeline and the reasoning behind it.
 
 ## Out of scope for this pass
 
