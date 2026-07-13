@@ -20,16 +20,16 @@ For each target `route.ts`, read the file and its dependencies, then write or up
 
 ### File location and name
 
-- Always `_docs.json`, colocated in the same directory as the `route.ts` it documents (e.g. `src/app/api/register/route.ts` → `src/app/api/register/_docs.json`).
+- Always `_docs.json`, colocated in the same directory as the `route.ts` it documents (e.g. `src/app/api/v1/register/route.ts` → `src/app/api/v1/register/_docs.json`).
 - One `_docs.json` per route folder, covering every HTTP method exported from that folder's `route.ts`.
 
 ### Deriving `path`
 
-- Build the URL path from the route's location under `src/app/api/`, the same way `src/front-end/shared/routing/scripts/generate.mjs` derives page paths from `src/app/`: strip route-group segments `(group)`, keep dynamic segments (`[id]`) as-is, prefix with `/api`.
+- Build the URL path from the route's location under `src/app/api/`: strip route-group segments `(group)`, keep dynamic segments (`[id]`) as-is, do not prefix with `/api`.
 
 ### Deriving `input` (request schema) — do NOT skip steps
 
-1. Find the service function the route handler calls (e.g. `register(...)` in `app/api/register/route.ts`).
+1. Find the service function the route handler calls (e.g. `register(...)` in `app/api/v1/register/route.ts`).
 2. Open that service file and find its parameter type (e.g. `IRegisterInput` in `services/register.ts`).
 3. Find every `validate(xSchema, { ... })` call inside that service function body — these are the actual JSON Schemas the service validates the input against (e.g. `credentialSchema`, `userInputSchema`).
 4. Build `input` as a JSON Schema object whose `properties`/`required`/`additionalProperties` are assembled from those validated schemas' fields — not from the TypeScript type directly, and not hand-invented.
@@ -51,7 +51,7 @@ For each target `route.ts`, read the file and its dependencies, then write or up
 ```json
 {
   "title": "Human-readable name for the endpoint",
-  "path": "/api/register",
+  "path": "/v1/register",
   "method": "POST",
   "description": "One or two sentences: what this endpoint does, in business terms.",
   "input": { "...JSON Schema...": true },

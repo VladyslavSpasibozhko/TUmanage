@@ -1,6 +1,6 @@
 {
   "title": "Refresh Session",
-  "path": "/api/session/refresh",
+  "path": "/v1/session/refresh",
   "method": "POST",
   "description": "Extends the expiry of the currently active session (identified by the request's session cookie). An expired or missing session cannot be refreshed and requires logging in again.",
   "input": null,

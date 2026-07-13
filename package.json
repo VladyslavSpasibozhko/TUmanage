@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate:openapi": "node scripts/generate-openapi.mjs --api=/src/app/api --output=/src/docs/openapi.generated.json --docsFile=_docs.json"
+    "generate:openapi": "node scripts/generate-openapi.mjs --api=/src/app/api --outputDir=/src/docs --docsFile=_docs.json"
   },
   "dependencies": {
     "ajv": "^8.20.0",

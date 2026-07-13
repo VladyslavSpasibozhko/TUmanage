@@ -1,6 +1,6 @@
 {
   "title": "Register",
-  "path": "/api/register",
+  "path": "/v1/register",
   "method": "POST",
   "description": "Creates a new Credential (email + password) and a new User, then immediately logs the user in by creating a session. Email is not verified before login.",
   "input": {

@@ -37,22 +37,22 @@ src/front-end/
 
 ## API Documentation
 
-Every route under `src/app/api/` has a colocated `_docs.json` (e.g. `src/app/api/register/_docs.json`) describing its request/response shape, written via the `/document-api-route` project command ([.claude/commands/document-api-route.md](.claude/commands/document-api-route.md)):
+Every route under `src/app/api/` has a colocated `_docs.json` (e.g. `src/app/api/v1/register/_docs.json`) describing its request/response shape, written via the `/document-api-route` project command ([.claude/commands/document-api-route.md](.claude/commands/document-api-route.md)):
 
 - `input` is traced from the service's actual `validate(schema, ...)` calls, not its TypeScript parameter type.
 - `output` is traced from the route handler's own `Response.json(...)` calls (one entry per status code actually returned), not the service's `Result<T>` — the route re-wraps that before the client sees it.
 - Docs describe real behavior, including known bugs (e.g. some routes return failure bodies under HTTP `200` rather than a distinct status — see [TECH_DEBT.md](TECH_DEBT.md)), never the "intended" behavior.
 
-These per-route files are merged by `scripts/generate-openapi.mjs` (deterministic, no AI) into `src/docs/openapi.generated.json`, statically imported and served live at `GET /api/openapi`:
+These per-route files are grouped by their API version (`/v1/...`, `/v2/...`) and merged by `scripts/generate-openapi.mjs` (deterministic, no AI) into one OpenAPI document per version — `src/docs/openapi.v1.generated.json`, `src/docs/openapi.v2.generated.json`, etc. Each is statically imported and served live at its own versioned endpoint, e.g. `GET /api/openapi/v1`:
 
 ```bash
 npm run generate:openapi
 ```
 
-- **Postman**: Import → Link → `/api/openapi` — Postman converts the OpenAPI document into a collection automatically.
-- **Front-end codegen**: point an OpenAPI-to-TypeScript tool at the same URL (tool not yet chosen).
+- **Postman**: Import → Link → `/api/openapi/v1` — Postman converts the OpenAPI document into a collection automatically.
+- **Front-end codegen**: point an OpenAPI-to-TypeScript tool at the same versioned URL (tool not yet chosen).
 
-Regeneration is currently manual (`npm run generate:openapi`) — a `predev`/`prebuild` hook to auto-run it was tried and removed mid-session; re-decide before relying on `src/docs/openapi.generated.json` being current.
+Regeneration is currently manual (`npm run generate:openapi`) — a `predev`/`prebuild` hook to auto-run it was tried and removed mid-session; re-decide before relying on `src/docs/openapi.v1.generated.json` being current.
 
 ## Getting Started
 

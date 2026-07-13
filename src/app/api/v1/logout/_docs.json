@@ -1,6 +1,6 @@
 {
   "title": "Logout",
-  "path": "/api/logout",
+  "path": "/v1/logout",
   "method": "POST",
   "description": "Ends the current session (the one identified by the request's session cookie). Idempotent: if no session cookie is present, or the session was already deleted, it still responds as a success.",
   "input": null,

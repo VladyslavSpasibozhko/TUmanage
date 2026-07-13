@@ -1,6 +1,6 @@
 {
   "title": "Login",
-  "path": "/api/login",
+  "path": "/v1/login",
   "method": "POST",
   "description": "Authenticates an existing user by email and password and creates a new session. Multiple concurrent sessions per user are allowed. Failure is generic (\"Invalid email or password\") regardless of whether the email exists or the password is wrong.",
   "input": {

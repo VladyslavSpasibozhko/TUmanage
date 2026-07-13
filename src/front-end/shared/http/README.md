@@ -21,7 +21,7 @@ import { http } from "@/src/front-end/shared/http";
 const res = await http.get<User[]>("/api/users");
 
 // POST
-const res = await http.post<Session>("/api/login", { email });
+const res = await http.post<Session>("/api/v1/login", { email });
 
 // PUT / PATCH / DELETE
 await http.put<Task>("/api/tasks/1", { title: "Updated" });
@@ -45,7 +45,7 @@ Thrown when the server responds with a non-2xx status code.
 import { ApiError } from "@/src/front-end/shared/http";
 
 try {
-  await http.post("/api/login", {});
+  await http.post("/api/v1/login", {});
 } catch (e) {
   if (e instanceof ApiError) {
     console.log(e.code);    // HTTP status, e.g. 401

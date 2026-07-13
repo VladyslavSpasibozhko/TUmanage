@@ -7,7 +7,7 @@ const ROOT = process.cwd();
 const { values } = parseArgs({
   options: {
     api: { type: "string" },
-    output: { type: "string" },
+    outputDir: { type: "string" },
     docsFile: { type: "string" },
   },
 });
@@ -27,6 +27,11 @@ function findDocsFiles(dir, docsFileName) {
   }
 
   return results;
+}
+
+function versionOf(path) {
+  const match = path.match(/^\/(v\d+)(\/|$)/);
+  return match ? match[1] : "unversioned";
 }
 
 function toOpenApiResponses(output) {
@@ -66,43 +71,55 @@ function addToPaths(paths, entry) {
   paths[path][method] = toOperation(entry);
 }
 
-function build(apiDir, outputFile, docsFileName) {
-  const docsFiles = findDocsFiles(apiDir, docsFileName);
-  const paths = {};
+function groupByVersion(docsFiles) {
+  const groups = {};
 
   for (const file of docsFiles) {
     const content = JSON.parse(readFileSync(file, "utf-8"));
     const entries = Array.isArray(content) ? content : [content];
 
     for (const entry of entries) {
-      addToPaths(paths, entry);
+      const version = versionOf(entry.path);
+      if (!groups[version]) groups[version] = {};
+      addToPaths(groups[version], entry);
     }
   }
 
-  const document = {
-    openapi: "3.1.0",
-    info: {
-      title: "API",
-      version: "1.0.0",
-    },
-    paths,
-  };
+  return groups;
+}
 
-  writeFileSync(outputFile, JSON.stringify(document, null, 2) + "\n", "utf-8");
-  console.log(`Generated ${docsFiles.length} route doc(s) → ${outputFile}`);
+function build(apiDir, outputDir, docsFileName) {
+  const docsFiles = findDocsFiles(apiDir, docsFileName);
+  const groups = groupByVersion(docsFiles);
+
+  for (const [version, paths] of Object.entries(groups)) {
+    const document = {
+      openapi: "3.1.0",
+      info: {
+        title: "API",
+        version,
+      },
+      paths,
+    };
+
+    const outputFile = join(outputDir, `openapi.${version}.generated.json`);
+    writeFileSync(outputFile, JSON.stringify(document, null, 2) + "\n", "utf-8");
+    console.log(`Generated ${version} (${Object.keys(paths).length} path(s)) → ${outputFile}`);
+  }
+
   docsFiles.forEach((f) => console.log(`  ${f.replace(ROOT + "/", "")}`));
 }
 
 const usage =
-  "Example: node generate-openapi.mjs --api=/src/app/api --output=/src/docs/openapi.generated.json --docsFile=_docs.json";
+  "Example: node generate-openapi.mjs --api=/src/app/api --outputDir=/src/docs --docsFile=_docs.json";
 
 if (!values.api) {
   console.error(`Error: --api argument is required. ${usage}`);
   process.exit(1);
 }
 
-if (!values.output) {
-  console.error(`Error: --output argument is required. ${usage}`);
+if (!values.outputDir) {
+  console.error(`Error: --outputDir argument is required. ${usage}`);
   process.exit(1);
 }
 
@@ -112,7 +129,7 @@ if (!values.docsFile) {
 }
 
 try {
-  build(join(ROOT, values.api), join(ROOT, values.output), values.docsFile);
+  build(join(ROOT, values.api), join(ROOT, values.outputDir), values.docsFile);
 } catch (err) {
   console.error("Error:", err.message);
   process.exit(1);

@@ -53,7 +53,7 @@ User opens /login
     → [Validation] If any field is empty or email is malformed:
         → Inline field error shown beneath the invalid field
         → Request is NOT sent
-    → [Request sent] POST /api/login with { email, password }
+    → [Request sent] POST /api/v1/login with { email, password }
         → [Loading state] Button shows "Logging in…", fields are disabled
         → [Success — 200 OK]
             → Session cookie is set by the server
@@ -77,11 +77,11 @@ import { http } from "@/src/front-end/shared/http";
 import { config } from "@/src/config";
 
 export async function login() {
-  return http.post(`${config.apiUrl}/login`, {});
+  return http.post(`${config.apiUrl}/v1/login`, {});
 }
 ```
 
-Calls `POST /api/login`. Returns `ApiResponse<Session>`.
+Calls `POST /api/v1/login`. Returns `ApiResponse<Session>`.
 
 ---
 
@@ -97,7 +97,7 @@ The user is authenticated and sees a **Log out** button, typically in the `Heade
 User clicks "Log out"
   → [Optional] Confirmation prompt: "Are you sure you want to log out?"
       → User confirms
-  → [Request sent] POST /api/logout
+  → [Request sent] POST /api/v1/logout
       → [Loading state] Button shows "Logging out…" and is disabled
       → [Success — 200 OK]
           → Session cookie is cleared by the server
@@ -115,11 +115,11 @@ import { http } from "@/src/front-end/shared/http";
 import { config } from "@/src/config";
 
 export async function logout() {
-  return http.post(`${config.apiUrl}/logout`, {});
+  return http.post(`${config.apiUrl}/v1/logout`, {});
 }
 ```
 
-Calls `POST /api/logout`. Returns `ApiResponse<void>`.
+Calls `POST /api/v1/logout`. Returns `ApiResponse<void>`.
 
 ---
 

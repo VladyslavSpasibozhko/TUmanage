@@ -2,10 +2,10 @@
   "openapi": "3.1.0",
   "info": {
     "title": "API",
-    "version": "1.0.0"
+    "version": "v1"
   },
   "paths": {
-    "/api/login": {
+    "/v1/login": {
       "post": {
         "summary": "Login",
         "description": "Authenticates an existing user by email and password and creates a new session. Multiple concurrent sessions per user are allowed. Failure is generic (\"Invalid email or password\") regardless of whether the email exists or the password is wrong.",
@@ -112,7 +112,7 @@
         }
       }
     },
-    "/api/logout": {
+    "/v1/logout": {
       "post": {
         "summary": "Logout",
         "description": "Ends the current session (the one identified by the request's session cookie). Idempotent: if no session cookie is present, or the session was already deleted, it still responds as a success.",
@@ -176,7 +176,7 @@
         }
       }
     },
-    "/api/register": {
+    "/v1/register": {
       "post": {
         "summary": "Register",
         "description": "Creates a new Credential (email + password) and a new User, then immediately logs the user in by creating a session. Email is not verified before login.",
@@ -292,7 +292,7 @@
         }
       }
     },
-    "/api/session/refresh": {
+    "/v1/session/refresh": {
       "post": {
         "summary": "Refresh Session",
         "description": "Extends the expiry of the currently active session (identified by the request's session cookie). An expired or missing session cannot be refreshed and requires logging in again.",
