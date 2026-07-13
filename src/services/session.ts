@@ -2,7 +2,11 @@ import {
   createSession as saveSession,
   getSession,
 } from "@/src/repositories/session";
-import { createSession as create, isSessionActive } from "@/src/domain/session";
+import {
+  createSession as create,
+  isSessionActive,
+  refreshSession as refresh,
+} from "@/src/domain/session";
 import { outcome, error } from "@/src/shared/utils";
 
 async function createSession(userId: string) {
@@ -27,4 +31,21 @@ async function verifiedSession(id: string) {
   }
 }
 
-export { createSession, verifiedSession };
+async function refreshSession(id: string) {
+  try {
+    const session = await getSession(id);
+    if (!session) {
+      throw new Error("Session with id " + id + " not found");
+    }
+    if (!isSessionActive(session)) {
+      throw new Error("Session with id " + id + " is expired");
+    }
+    const refreshed = refresh(session);
+    await saveSession(refreshed);
+    return outcome.success(refreshed);
+  } catch (err) {
+    return outcome.failure(error.getErrorMessage(err));
+  }
+}
+
+export { createSession, verifiedSession, refreshSession };
