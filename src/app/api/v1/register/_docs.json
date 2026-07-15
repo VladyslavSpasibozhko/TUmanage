@@ -4,30 +4,17 @@
   "method": "POST",
   "description": "Creates a new Credential (email + password) and a new User, then immediately logs the user in by creating a session. Email is not verified before login.",
   "input": {
-    "type": "object",
-    "properties": {
-      "name": { "type": "string", "minLength": 2, "maxLength": 12 },
-      "email": { "type": "string", "format": "email" },
-      "password": { "type": "string", "minLength": 8 }
-    },
-    "required": ["name", "email", "password"],
-    "additionalProperties": false
+    "allOf": [
+      { "$ref": "@/src/domain/credential/schema.ts#credentialSchema" },
+      { "$ref": "@/src/domain/user/schema.ts#userInputSchema" }
+    ]
   },
   "output": {
     "201": {
       "type": "object",
       "properties": {
         "success": { "const": true },
-        "data": {
-          "type": "object",
-          "properties": {
-            "id": { "type": "string", "format": "uuid" },
-            "userId": { "type": "string", "format": "uuid" },
-            "expiredAt": { "type": "number" }
-          },
-          "required": ["id", "userId", "expiredAt"],
-          "additionalProperties": false
-        }
+        "data": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" }
       },
       "required": ["success", "data"],
       "additionalProperties": false

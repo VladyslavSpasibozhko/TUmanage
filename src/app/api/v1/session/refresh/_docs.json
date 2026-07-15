@@ -11,16 +11,7 @@
           "type": "object",
           "properties": {
             "success": { "const": true },
-            "data": {
-              "type": "object",
-              "properties": {
-                "id": { "type": "string", "format": "uuid" },
-                "userId": { "type": "string", "format": "uuid" },
-                "expiredAt": { "type": "number" }
-              },
-              "required": ["id", "userId", "expiredAt"],
-              "additionalProperties": false
-            }
+            "data": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" }
           },
           "required": ["success", "data"],
           "additionalProperties": false
