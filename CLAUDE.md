@@ -61,8 +61,16 @@ src/front-end/
 
 **entities/ rules:**
 - Contains types, constants, and pure helper functions for a domain entity
-- No side effects — no API calls, no stores
+- No side effects — no fetching, no stores
 - One folder per entity: `entities/user/`, `entities/task/`, `entities/session/`, etc.
+
+**entities/ API config functions:**
+- Each backend endpoint gets one pure config function, one file per function, under `entities/<entity>/api/<verb>.ts` (e.g. `entities/session/api/login.ts` exports `loginApi`)
+- Route an endpoint to the entity it primarily acts on — the entity whose `_docs.json` `output.data` shape it returns (e.g. `login`/`logout`/`refresh` all return session data → `entities/session/`; `register` is user creation → `entities/user/`)
+- A config function takes the endpoint's input as a parameter and returns `Pick<IHttpRequest, "method" | "path" | "body">` (from `shared/http`) — it must not call `fetch` or the `Http` client itself; that happens in `gateway/`
+- `method` and `path` come from the route's `_docs.json`; GET endpoints with query params build the path with a query string instead of a `body`
+- The input parameter type must be imported from `src/domain/`, never hand-rolled — compose via `Pick`/`Omit`/intersection of domain types the same way `services/` input types are derived (e.g. `registerApi(input: IUserInput & Pick<ICredential, "password">)`)
+- Barrel each entity's `index.ts` re-exporting its domain types and all its `api/*` functions
 
 **gateway/ rules:**
 - Composes `shared/` primitives (e.g. `Http`, `Chain`, `Interceptor`) into ready-to-use, wired singletons — base URL, default headers, auth-refresh interceptor, etc.
