@@ -23,7 +23,9 @@ Shared layout, structural components, and UI primitives used across the entire a
 | `components/form/index.tsx` | Barrel re-export for `Form`. |
 | `components/form-field/form-field.tsx` | `FormField` — label + error + control composite. Generic over `children`, so it wraps `Input`, `Select`, or any other control. |
 | `components/form-field/index.tsx` | Barrel re-export for `FormField`. |
-| `index.ts` | Top-level barrel: `AppLayout`, `Header`, `Sidebar`, `Errors` (namespace re-export), `Button`, `Input`, `Select`, `Form`, `FormField`. |
+| `components/text/text.tsx` | `Text` — polymorphic text primitive with `as` (tag) and `variant` (style) props. |
+| `components/text/index.tsx` | Barrel re-export for `Text`. |
+| `index.ts` | Top-level barrel: `AppLayout`, `Header`, `Sidebar`, `Errors` (namespace re-export), `Button`, `Input`, `Select`, `Form`, `FormField`, `Text`. |
 
 ## Components
 
@@ -211,6 +213,25 @@ import { FormField, Select } from "@/src/front-end/shared/ui";
 | `label` | `string` | Field label text. |
 | `error` | `string` (optional) | Error message rendered below the control when present (`role="alert"`). |
 | `children` | `React.ReactNode` | The control (`Input`, `Select`, etc.) being labeled. |
+
+### `Text`
+
+Polymorphic text primitive. Use it instead of raw `<h1>`/`<p>` tags so heading and body styles stay centralized.
+
+```tsx
+import { Text } from "@/src/front-end/shared/ui";
+
+<Text as="h1" variant="heading">Welcome back</Text>
+<Text as="p" variant="body">Log in to continue to your account.</Text>
+```
+
+**Props:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `as` | `"h1" \| "h2" \| "h3" \| "p" \| "span"` | Rendered HTML tag. Defaults to `"p"`. |
+| `variant` | `"heading" \| "body"` | Visual style, independent of `as`. Defaults to `"body"`. |
+| ...rest | `React.ComponentProps<"p">` | Passed through to the rendered element. |
 
 ## Usage rules
 

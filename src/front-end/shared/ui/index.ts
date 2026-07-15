@@ -19,3 +19,4 @@ export {
   FormField,
   type IFormFieldProps,
 } from "./components/form-field";
+export { Text, type ITextProps } from "./components/text";

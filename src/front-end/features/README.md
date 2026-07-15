@@ -12,18 +12,33 @@ Business-process slices. Each folder is one user-facing flow, fully self-contain
 
 ## Feature Folder Structure
 
+Each feature is split into segments, not left flat:
+
 ```
 features/
   auth-login/
-    README.md       ← this file (flow description)
-    LoginForm.tsx   ← form component
-    useLogin.ts     ← hook: form state, validation, service call
-    service.ts      ← API call (wraps shared/http)
+    README.md            ← flow description
+    ui/
+      LoginForm.tsx       ← form component
+    model/
+      useLogin.ts         ← hook: form state, validation, submit handling
+      types.ts            ← feature-local types (e.g. i18n prop shape)
+    api/
+      login.ts            ← API call, wraps gateway/
+    index.ts               ← barrel: re-exports ui/model/api as needed
   auth-logout/
     README.md
-    LogoutButton.tsx
-    service.ts
+    ui/
+      LogoutButton.tsx
+    api/
+      logout.ts
+    index.ts
 ```
+
+- `ui/` — form and presentational components
+- `model/` — hooks, local state, feature-local types
+- `api/` — calls into `gateway/`, one file per endpoint
+- Add `lib/` only if the feature needs pure helper functions that don't fit `model/`
 
 ---
 
@@ -143,5 +158,5 @@ Calls `POST /api/v1/logout`. Returns `ApiResponse<void>`.
 [Which API endpoint is called and what it returns]
 ```
 
-3. Implement: form component, hook (state + validation + service call), service module
-4. Export from `index.ts`
+3. Implement: `ui/` component, `model/` hook (state + validation + submit handling), `api/` module (wraps `gateway/`)
+4. Export what other layers need from `index.ts`

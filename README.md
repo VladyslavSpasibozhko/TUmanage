@@ -17,23 +17,24 @@ src/repositories/ → persistence (file I/O)
 src/domain/       → pure business logic and entity types
 ```
 
-Next.js-specific code (server components, metadata exports, route handlers) lives exclusively in `src/app/` and acts as the thin hosting layer.
+Next.js-specific code (server components, metadata exports, route handlers) lives exclusively in `src/app/` and acts as the thin hosting layer. Sibling pages that need identical wrapper markup share it via a Next.js route group (e.g. `src/app/(app)/(auth)/layout.tsx` wraps both `/login` and `/register`) rather than duplicating a `layout.tsx` per page — route groups (`(name)`) don't add a URL segment.
 
 ### Front-End (client-side, FSD)
 
-All client-side code lives under `src/front-end/` and follows **Feature-Sliced Design**. Layers are ordered top-to-bottom; upper layers import from lower ones only:
+All client-side code lives under `src/front-end/` and follows **Feature-Sliced Design**. Layers are ordered top-to-bottom; upper layers import from lower ones only. See `src/front-end/README.md` for the full layer breakdown and conventions:
 
 ```
 src/front-end/
-  features/    → business-process slices (login, logout, …)
-  entities/    → typed representations of domain entities
+  features/    → business-process slices (auth-login, auth-register, …), each split into ui/, model/, api/
+  entities/    → typed representations of domain entities; re-export only their own api/* functions, never src/domain/ types
+  gateway/     → composed, wired HTTP client (imported as `client`, not `httpClient`)
   shared/      → reusable, non-business infrastructure
-    http/      → typed HTTP client (`http` object, `ApiError`)
-    routing/   → generated route constants and type-safe path builders
-    ui/        → shared layout, structural components, and error primitives
+    http/      → typed HTTP client primitives (`createClient`, `ApiError`)
+    routing/   → deprecated, slated for removal — use plain path strings instead
+    ui/        → shared layout, structural components, form/text primitives, and error primitives
 ```
 
-`shared/` code has no imports from `next` or any framework-specific package — it is portable to any React host.
+`shared/` and `entities/` code has no imports from `next` or any framework-specific package — it is portable to any React host.
 
 ## API Documentation
 

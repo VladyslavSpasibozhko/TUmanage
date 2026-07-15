@@ -1,5 +1,7 @@
 # shared/routing
 
+> **Deprecated — slated for removal.** Do not use `appRoutes`/`APP_ROUTES` in new code. Use plain path strings (`router.push("/")`, `<a href="/register">`) instead. This module and its usage rules below describe the current (soon-to-be-removed) state only.
+
 Type-safe route constants and path-builder functions, auto-generated from the Next.js `src/app/` directory. Prevents hard-coded strings and ensures every navigation target is valid at compile time.
 
 ## Files

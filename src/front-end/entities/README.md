@@ -118,6 +118,6 @@ A named set of permissions assigned to a user within a group.
 
 ## Conventions
 
-- Each entity folder exposes a single `index.ts` barrel: `export * from "./types"`, `export * from "./constants"`, etc.
+- Each entity folder exposes a single `index.ts` barrel, but it only re-exports the entity's own `api/*` config functions (e.g. `loginApi`, `registerApi`) — **it must not re-export types from `src/domain/`** (no `export type { ISession } from "@/src/domain/session"`). Consumers import domain types directly from `src/domain/<entity>` where they're needed.
 - Helper functions are named in `camelCase` and are pure (no side effects)
-- Types mirror the server-side `src/domain/` types exactly — do not add fields that don't exist on the server
+- Types used from `src/domain/` mirror the server-side shapes exactly — do not add fields that don't exist on the server
