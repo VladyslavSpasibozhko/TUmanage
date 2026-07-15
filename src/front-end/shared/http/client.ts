@@ -1,56 +1,53 @@
-import { ApiError } from "./errors";
+import request, { Options } from "./request";
 
-type ApiResponse<T> =
-  | { success: true; data: T }
-  | { success: false; err: { code: number; err: string } };
-
-type Options = Omit<RequestInit, "method" | "body">;
-
-async function request<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<ApiResponse<T>> {
-  const res = await fetch(path, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
-
-  if (!res.ok) {
-    throw new ApiError(res.status, res.statusText);
-  }
-
-  return await res.json();
+export interface IHttpInterceptor<T = unknown> {
+  process: (props: T) => Promise<void>;
 }
 
-export const http = {
-  get<T>(path: string, init?: Options) {
-    return request<T>(path, { ...init, method: "GET" });
-  },
-  post<T>(path: string, body: unknown, init?: Options) {
-    return request<T>(path, {
-      ...init,
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-  },
-  put<T>(path: string, body: unknown, init?: Options) {
-    return request<T>(path, {
-      ...init,
-      method: "PUT",
-      body: JSON.stringify(body),
-    });
-  },
-  patch<T>(path: string, body: unknown, init?: Options) {
-    return request<T>(path, {
-      ...init,
-      method: "PATCH",
-      body: JSON.stringify(body),
-    });
-  },
-  del<T>(path: string, init?: Options) {
-    return request<T>(path, { ...init, method: "DELETE" });
-  },
-};
+export interface IHttpConfig {
+  baseUrl?: string;
+  headers?: HeadersInit;
+}
+
+export interface IHttpInterceptors {
+  request: IHttpInterceptor<IHttpRequest>;
+  response: IHttpInterceptor;
+}
+
+interface IHttpInit {
+  interceptors: IHttpInterceptors;
+  config: IHttpConfig;
+}
+
+export interface IHttpRequest extends Options {
+  path: string;
+  method: string;
+  body?: BodyInit | null;
+}
+
+export interface IHttp {
+  request: <T>(props: IHttpRequest) => ReturnType<typeof request<T>>;
+}
+
+function buildUrl(baseUrl: string | undefined, path: string): string {
+  if (!baseUrl) return path;
+  return `${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
+}
+
+export function createClient({ interceptors, config }: IHttpInit): IHttp {
+  return {
+    async request<T>(props: IHttpRequest) {
+      await interceptors.request.process(props);
+
+      const { path, headers, ...rest } = props;
+      const response = await request<T>(buildUrl(config.baseUrl, path), {
+        ...rest,
+        headers: { ...config.headers, ...headers },
+      });
+
+      await interceptors.response.process(response);
+
+      return response;
+    },
+  };
+}
