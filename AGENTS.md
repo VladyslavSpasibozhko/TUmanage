@@ -12,16 +12,18 @@ All client-side code lives under `src/front-end/` and follows **Feature-Sliced D
 src/front-end/
   features/    → business-process slices (login, logout, etc.)
   entities/    → front-end representations of domain entities (User, Task, Session, …)
+  gateway/     → composed, wired clients (auth refresh, base URL, etc.), may have side effects
   shared/      → reusable, non-business infrastructure
-    http/      → typed HTTP client
+    http/      → typed HTTP client primitives
     routing/   → generated route constants and path builders
     ui/        → shared layout components and design primitives
 ```
 
 **Rules:**
-- `shared/` must never import from `entities/` or `features/`
-- `entities/` must never import from `features/`
-- `features/` may import from `entities/` and `shared/`
+- `shared/` must never import from `entities/`, `gateway/`, or `features/`
+- `entities/` must never import from `gateway/` or `features/`
+- `gateway/` may import from `shared/` and `entities/`, never from `features/`
+- `features/` may import from `entities/`, `gateway/`, and `shared/`
 - No layer may import from `src/app/` (Next.js host) or use `next/*` APIs
 - Each feature documents its full user-facing flow: screen, inputs, success path, error paths
 

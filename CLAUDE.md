@@ -39,32 +39,42 @@ All client-side code lives under `src/front-end/` and follows **Feature-Sliced D
 src/front-end/
   features/    → business-process slices (one folder per user-facing flow)
   entities/    → front-end representations of domain entities (types, constants, helpers)
+  gateway/     → composed, wired clients (base URL, auth refresh, etc.)
   shared/      → reusable, non-business infrastructure
-    http/      → typed HTTP client
+    http/      → typed HTTP client primitives
     routing/   → generated route constants and path builders
     ui/        → shared layout, structural components, error/loading primitives
 ```
 
 **Import rules:**
-- `shared/` must never import from `entities/` or `features/`
-- `entities/` must never import from `features/`
-- `features/` may import from `entities/` and `shared/`
+- `shared/` must never import from `entities/`, `gateway/`, or `features/`
+- `entities/` must never import from `gateway/` or `features/`
+- `gateway/` may import from `shared/` and `entities/`, never from `features/`
+- `features/` may import from `entities/`, `gateway/`, and `shared/`
 - No layer may import from `src/app/` (the Next.js host) or use `next/*` APIs
 
 **shared/ rules:**
 - No imports from `next` or any framework-specific package
 - Dependencies must be limited to `react`, `react-dom`, or plain TypeScript/JS
 - Each sub-library (`http/`, `routing/`, `ui/`) must have its own `README.md`
+- No business/domain knowledge — must not know what a "session" or "user" is, only generic transport concerns (paths, headers, interceptor mechanism)
 
 **entities/ rules:**
 - Contains types, constants, and pure helper functions for a domain entity
 - No side effects — no API calls, no stores
 - One folder per entity: `entities/user/`, `entities/task/`, `entities/session/`, etc.
 
+**gateway/ rules:**
+- Composes `shared/` primitives (e.g. `Http`, `Chain`, `Interceptor`) into ready-to-use, wired singletons — base URL, default headers, auth-refresh interceptor, etc.
+- May have side effects (network calls) — this is the only layer besides `features/` allowed to
+- May type against `entities/` shapes, but must not contain business rules (validation, workflow decisions) — only technical wiring
+- One folder per composed client: `gateway/http/`, and later e.g. `gateway/socket/` if needed
+
 **features/ rules:**
 - One folder per user-facing business process (e.g. `features/auth-login/`)
 - Must include a `README.md` describing the full user flow: screen → inputs → success → error paths
 - May contain: form components, hooks, service calls, local state — all scoped to that feature
+- Service calls go through `gateway/`, not `shared/http` directly
 - No imports from other features — if two features share something, move it to `entities/` or `shared/`
 
 ## Utils

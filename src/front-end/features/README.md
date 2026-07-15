@@ -5,7 +5,8 @@ Business-process slices. Each folder is one user-facing flow, fully self-contain
 ## Rules
 
 - One folder per user-facing flow, named `<domain>-<action>` (e.g. `auth-login`, `task-create`)
-- May import from `entities/` and `shared/` — never from other `features/`
+- May import from `entities/`, `gateway/`, and `shared/` — never from other `features/`
+- Service calls go through `gateway/`, not `shared/http` directly
 - Must never import from `src/app/` or use `next/*` APIs
 - Every feature folder must contain a `README.md` documenting the full user flow
 
@@ -73,11 +74,10 @@ User opens /login
 
 ```ts
 // front-end/services/auth.login.ts
-import { http } from "@/src/front-end/shared/http";
-import { config } from "@/src/config";
+import { http } from "@/src/front-end/gateway/http";
 
 export async function login() {
-  return http.post(`${config.apiUrl}/v1/login`, {});
+  return http.post("/v1/login", {});
 }
 ```
 
@@ -111,11 +111,10 @@ User clicks "Log out"
 
 ```ts
 // front-end/services/auth.logout.ts
-import { http } from "@/src/front-end/shared/http";
-import { config } from "@/src/config";
+import { http } from "@/src/front-end/gateway/http";
 
 export async function logout() {
-  return http.post(`${config.apiUrl}/v1/logout`, {});
+  return http.post("/v1/logout", {});
 }
 ```
 

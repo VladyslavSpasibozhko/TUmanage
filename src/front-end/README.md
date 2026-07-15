@@ -8,8 +8,9 @@ All client-side code lives in this folder and follows **Feature-Sliced Design (F
 src/front-end/
   features/    → user-facing business processes (one slice per flow)
   entities/    → typed representations of domain entities
+  gateway/     → composed, wired clients (base URL, auth refresh, etc.)
   shared/      → reusable, non-business infrastructure
-    http/      → typed HTTP client
+    http/      → typed HTTP client primitives
     routing/   → generated route constants and path builders
     ui/        → shared layout, structural components, error/loading primitives
 ```
@@ -18,19 +19,26 @@ src/front-end/
 
 | Layer | May import from | Must never import from |
 |-------|-----------------|------------------------|
-| `features/` | `entities/`, `shared/` | other `features/`, `src/app/`, `next/*` |
-| `entities/` | `shared/` | `features/`, `src/app/`, `next/*` |
-| `shared/` | — (external libs only) | `entities/`, `features/`, `next/*` |
+| `features/` | `entities/`, `gateway/`, `shared/` | other `features/`, `src/app/`, `next/*` |
+| `gateway/` | `entities/`, `shared/` | `features/`, `src/app/`, `next/*` |
+| `entities/` | `shared/` | `gateway/`, `features/`, `src/app/`, `next/*` |
+| `shared/` | — (external libs only) | `entities/`, `gateway/`, `features/`, `next/*` |
 
 ## Layer Descriptions
 
 ### `shared/`
 
-Non-business infrastructure that any layer can use. Has no knowledge of the application's domain. Each sub-library has its own `README.md`.
+Non-business infrastructure that any layer can use. Has no knowledge of the application's domain — not even what a "session" is. Each sub-library has its own `README.md`.
 
-- `shared/http/` — typed `fetch` wrapper and `ApiError` class
+- `shared/http/` — typed `fetch` wrapper, interceptor chain primitives (`Http`, `Chain`, `Interceptor`), and `ApiError` class
 - `shared/routing/` — generated route constants (`APP_ROUTES`) and type-safe path-builder functions
 - `shared/ui/` — shared layout (`AppLayout`), structural UI (`Header`, `Sidebar`), and primitives (`Loader`, `PageError`)
+
+### `gateway/`
+
+Composed, wired instances built from `shared/` primitives — the app's actual HTTP client, pre-configured with a base URL and an auth-refresh interceptor. May type against `entities/` shapes but contains no business rules, only technical wiring. This is the only place besides `features/` allowed to have side effects (network calls).
+
+- `gateway/http/` — the singleton `Http` client, wired with the refresh-token interceptor
 
 ### `entities/`
 
