@@ -10,12 +10,12 @@ export interface IHttpConfig {
 }
 
 export interface IHttpInterceptors {
-  request: IHttpInterceptor<IHttpRequest>;
-  response: IHttpInterceptor;
+  request: IHttpInterceptor<IHttpRequest> | null;
+  response: IHttpInterceptor | null;
 }
 
 interface IHttpInit {
-  interceptors: IHttpInterceptors;
+  interceptors?: IHttpInterceptors;
   config: IHttpConfig;
 }
 
@@ -35,9 +35,23 @@ function buildUrl(baseUrl: string | undefined, path: string): string {
 }
 
 export function createClient({ interceptors, config }: IHttpInit): IHttp {
+  const processReq = (props: IHttpRequest) => {
+    if (!interceptors || !interceptors.request) {
+      return Promise.resolve();
+    }
+    return interceptors.request.process(props);
+  };
+
+  const processRes = <T>(props: T) => {
+    if (!interceptors || !interceptors.response) {
+      return Promise.resolve();
+    }
+    return interceptors.response.process(props);
+  };
+
   return {
     async request<T>(props: IHttpRequest) {
-      await interceptors.request.process(props);
+      await processReq(props);
 
       const { path, headers, ...rest } = props;
       const response = await request<T>(buildUrl(config.baseUrl, path), {
@@ -45,7 +59,7 @@ export function createClient({ interceptors, config }: IHttpInit): IHttp {
         headers: { ...config.headers, ...headers },
       });
 
-      await interceptors.response.process(response);
+      await processRes(response);
 
       return response;
     },
