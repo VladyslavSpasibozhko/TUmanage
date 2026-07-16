@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <html>
-      <body>{children}</body>
+      <body className="bg-bg text-text-primary">{children}</body>
     </html>
   );
 }

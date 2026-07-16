@@ -52,6 +52,7 @@ src/front-end/
 - `gateway/` may import from `shared/` and `entities/`, never from `features/`
 - `features/` may import from `entities/`, `gateway/`, and `shared/`
 - No layer may import from `src/app/` (the Next.js host) or use `next/*` APIs
+- This bars `next/*` **imports within** `front-end/`; it does not bar `next/*` values from being passed in. `app/**` pages may build `<Link>` elements and hand them to a `front-end/` component through a `children`/render-prop slot (e.g. `Sidebar`'s `children`, `AppLayout`'s `header`/`sidebar`) — the component receiving them only sees `React.ReactNode` and never imports `next/link` itself
 
 **shared/ rules:**
 - No imports from `next` or any framework-specific package

@@ -32,18 +32,20 @@
   --status-done-bg: #ecfdf5;
 }
 
-.dark {
-  --bg: #000000;              /* black    */
-  --surface: #18181b;         /* zinc-900 */
-  --surface-sunken: #121214;
-  --border: #27272a;          /* zinc-800 */
-  --border-strong: #3f3f46;   /* zinc-700 */
-  --text-primary: #f4f4f5;    /* zinc-100 */
-  --text-secondary: #a1a1aa;  /* zinc-400 */
-  --text-tertiary: #71717a;   /* zinc-500 */
-  --danger: #f87171;          /* red-400  */
-  --status-progress: #fbbf24;    /* amber-400 */
-  --status-progress-bg: #3a2a0f;
-  --status-done: #34d399;        /* emerald-400 */
-  --status-done-bg: #0d2a20;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;              /* black    */
+    --surface: #18181b;         /* zinc-900 */
+    --surface-sunken: #121214;
+    --border: #27272a;          /* zinc-800 */
+    --border-strong: #3f3f46;   /* zinc-700 */
+    --text-primary: #f4f4f5;    /* zinc-100 */
+    --text-secondary: #a1a1aa;  /* zinc-400 */
+    --text-tertiary: #71717a;   /* zinc-500 */
+    --danger: #f87171;          /* red-400  */
+    --status-progress: #fbbf24;    /* amber-400 */
+    --status-progress-bg: #3a2a0f;
+    --status-done: #34d399;        /* emerald-400 */
+    --status-done-bg: #0d2a20;
+  }
 }

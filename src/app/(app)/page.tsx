@@ -1,7 +1,43 @@
-export default function Home() {
+import { AppLayout, Header, Sidebar, Text } from "@/src/front-end/shared/ui";
+import Link from "next/link";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", active: true },
+  { href: "/groups", label: "Groups" },
+  { href: "/account", label: "Account" },
+];
+
+export default function DashboardPage(props: PageProps<"/">) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      Home
-    </div>
+    <AppLayout
+      header={
+        <Header
+          title="Acme"
+          actions={<span className="text-sm text-text-primary">Jane Doe</span>}
+        />
+      }
+      sidebar={
+        <Sidebar>
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={item.active ? "page" : undefined}
+              className={`rounded-md px-2.5 py-1.5 text-sm ${
+                item.active
+                  ? "bg-surface-sunken font-medium text-text-primary"
+                  : "text-text-secondary"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </Sidebar>
+      }
+    >
+      <Text as="h1" variant="heading">
+        Dashboard
+      </Text>
+    </AppLayout>
   );
 }
