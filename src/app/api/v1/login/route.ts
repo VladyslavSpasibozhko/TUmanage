@@ -1,5 +1,6 @@
 import { login } from "@/src/services/login";
 import { apiError, apiSuccess } from "@/src/app/api/_response";
+import { SESSION_COOKIE } from "@/src/app/api/_session";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     const { data } = result;
     const cookieStore = await cookies();
 
-    cookieStore.set("session", data.id, {
+    cookieStore.set(SESSION_COOKIE, data.id, {
       sameSite: "lax",
       expires: data.expiredAt,
     });

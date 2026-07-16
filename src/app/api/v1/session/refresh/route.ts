@@ -1,11 +1,12 @@
 import { refreshSession } from "@/src/services/session";
 import { apiError, apiSuccess } from "@/src/app/api/_response";
+import { SESSION_COOKIE } from "@/src/app/api/_session";
 import { cookies } from "next/headers";
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session")?.value;
+    const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 
     if (!sessionId) {
       throw new Error("No session cookie found");
@@ -13,12 +14,12 @@ export async function POST() {
 
     const result = await refreshSession(sessionId);
     if (!result.ok) {
-      cookieStore.delete("session");
+      cookieStore.delete(SESSION_COOKIE);
       return apiError(result.error, 401);
     }
 
     const { data } = result;
-    cookieStore.set("session", data.id, {
+    cookieStore.set(SESSION_COOKIE, data.id, {
       sameSite: "lax",
       expires: data.expiredAt,
     });

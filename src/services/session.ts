@@ -5,6 +5,7 @@ import {
 import {
   createSession as create,
   isSessionActive,
+  isSessionExpiringSoon,
   refreshSession as refresh,
 } from "@/src/domain/session";
 import { outcome, error } from "@/src/shared/utils";
@@ -25,7 +26,10 @@ async function verifiedSession(id: string) {
     if (!session) {
       throw new Error("Session with id " + id + " not found");
     }
-    return outcome.success({ active: isSessionActive(session) });
+    return outcome.success({
+      active: isSessionActive(session),
+      refresh: isSessionExpiringSoon(session),
+    });
   } catch (err) {
     return outcome.failure(error.getErrorMessage(err));
   }
