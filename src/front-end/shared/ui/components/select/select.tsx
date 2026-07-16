@@ -25,7 +25,7 @@ export default function Select({
     <select
       className={`w-full rounded-md border border-border bg-surface text-text-primary
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-red-500
+        disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-danger
         ${sizeClassName[size]} ${className}`}
       {...props}
     >

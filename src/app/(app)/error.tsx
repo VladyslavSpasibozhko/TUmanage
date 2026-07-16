@@ -17,7 +17,12 @@ export default function ErrorCatcher({
 
   return (
     <div>
-      <Errors.PageError message={error.message} onRetry={unstable_retry} />
+      <Errors.PageError
+        title="Something went wrong"
+        message={error.message}
+        retryLabel="Retry"
+        onRetry={unstable_retry}
+      />
     </div>
   );
 }

@@ -20,3 +20,4 @@ export {
   type IFormFieldProps,
 } from "./components/form-field";
 export { Text, type ITextProps } from "./components/text";
+export { Loader, type ILoaderProps } from "./components/loader";

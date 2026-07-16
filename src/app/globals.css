@@ -3,20 +3,47 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-danger: var(--danger);
+  --color-status-progress: var(--status-progress);
+  --color-status-progress-bg: var(--status-progress-bg);
+  --color-status-done: var(--status-done);
+  --color-status-done-bg: var(--status-done-bg);
 }
 
 :root {
-  --bg: #fafafa;       /* zinc-50  */
-  --surface: #ffffff;  /* white    */
-  --border: #e4e4e7;   /* zinc-200 */
-  --text-primary: #18181b; /* zinc-900 */
+  --bg: #fafafa;              /* zinc-50  */
+  --surface: #ffffff;         /* white    */
+  --surface-sunken: #f4f4f5;  /* zinc-100 */
+  --border: #e4e4e7;          /* zinc-200 */
+  --border-strong: #d4d4d8;   /* zinc-300 */
+  --text-primary: #18181b;    /* zinc-900 */
+  --text-secondary: #71717a;  /* zinc-500 */
+  --text-tertiary: #a1a1aa;   /* zinc-400 */
+  --danger: #b91c1c;          /* red-700  */
+  --status-progress: #b45309;    /* amber-700 */
+  --status-progress-bg: #fef3e2;
+  --status-done: #047857;        /* emerald-700 */
+  --status-done-bg: #ecfdf5;
 }
 
 .dark {
-  --bg: #000000;       /* black    */
-  --surface: #18181b;  /* zinc-900 */
-  --border: #27272a;   /* zinc-800 */
-  --text-primary: #f4f4f5; /* zinc-100 */
+  --bg: #000000;              /* black    */
+  --surface: #18181b;         /* zinc-900 */
+  --surface-sunken: #121214;
+  --border: #27272a;          /* zinc-800 */
+  --border-strong: #3f3f46;   /* zinc-700 */
+  --text-primary: #f4f4f5;    /* zinc-100 */
+  --text-secondary: #a1a1aa;  /* zinc-400 */
+  --text-tertiary: #71717a;   /* zinc-500 */
+  --danger: #f87171;          /* red-400  */
+  --status-progress: #fbbf24;    /* amber-400 */
+  --status-progress-bg: #3a2a0f;
+  --status-done: #34d399;        /* emerald-400 */
+  --status-done-bg: #0d2a20;
 }
