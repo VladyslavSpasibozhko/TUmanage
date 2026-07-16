@@ -15,174 +15,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": true
-                        },
-                        "data": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "userId": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "expiredAt": {
-                              "type": "number"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "userId",
-                            "expiredAt"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "data"
-                      ],
-                      "additionalProperties": false
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": true
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": false
-                        },
-                        "err": {
-                          "type": "object",
-                          "properties": {
-                            "code": {
-                              "type": "number"
-                            },
-                            "err": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "code",
-                            "err"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "err"
-                      ],
-                      "additionalProperties": false
+                    "data": {
+                      "$ref": "@/src/domain/session/schema.ts#sessionSchema"
                     }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
                   },
-                  "password": {
-                    "type": "string",
-                    "minLength": 8
-                  }
-                },
-                "required": [
-                  "email",
-                  "password"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/logout": {
-      "post": {
-        "summary": "Logout",
-        "description": "Ends the current session (the one identified by the request's session cookie). Idempotent: if no session cookie is present, or the session was already deleted, it still responds as a success.",
-        "responses": {
-          "200": {
-            "description": "HTTP 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": true
-                        },
-                        "data": {
-                          "const": null
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "data"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": false
-                        },
-                        "err": {
-                          "type": "object",
-                          "properties": {
-                            "code": {
-                              "type": "number"
-                            },
-                            "err": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "code",
-                            "err"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "err"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ]
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/v1/register": {
-      "post": {
-        "summary": "Register",
-        "description": "Creates a new Credential (email + password) and a new User, then immediately logs the user in by creating a session. Email is not verified before login.",
-        "responses": {
-          "200": {
-            "description": "HTTP 200",
+          },
+          "400": {
+            "description": "HTTP 400",
             "content": {
               "application/json": {
                 "schema": {
@@ -195,7 +47,7 @@
                       "type": "object",
                       "properties": {
                         "code": {
-                          "type": "number"
+                          "const": 400
                         },
                         "err": {
                           "type": "string"
@@ -217,6 +69,162 @@
               }
             }
           },
+          "500": {
+            "description": "HTTP 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 500
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "@/src/domain/credential/schema.ts#credentialSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "Ends the current session (the one identified by the request's session cookie). Idempotent: if no session cookie is present, it responds as a success without contacting the session store.",
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": true
+                    },
+                    "data": {
+                      "const": null
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "HTTP 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 400
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 500
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/register": {
+      "post": {
+        "summary": "Register",
+        "description": "Creates a new Credential (email + password) and a new User, then immediately logs the user in by creating a session. Email is not verified before login.",
+        "responses": {
           "201": {
             "description": "HTTP 201",
             "content": {
@@ -230,22 +238,16 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid"
+                        "session": {
+                          "$ref": "@/src/domain/session/schema.ts#sessionSchema"
                         },
-                        "userId": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "expiredAt": {
-                          "type": "number"
+                        "user": {
+                          "$ref": "@/src/domain/user/schema.ts#userSchema"
                         }
                       },
                       "required": [
-                        "id",
-                        "userId",
-                        "expiredAt"
+                        "session",
+                        "user"
                       ],
                       "additionalProperties": false
                     }
@@ -258,34 +260,92 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "HTTP 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 400
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 500
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
           }
         },
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 12
+                "allOf": [
+                  {
+                    "$ref": "@/src/domain/credential/schema.ts#credentialSchema"
                   },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string",
-                    "minLength": 8
+                  {
+                    "$ref": "@/src/domain/user/schema.ts#userInputSchema"
                   }
-                },
-                "required": [
-                  "name",
-                  "email",
-                  "password"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -302,72 +362,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": true
-                        },
-                        "data": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "userId": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "expiredAt": {
-                              "type": "number"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "userId",
-                            "expiredAt"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "data"
-                      ],
-                      "additionalProperties": false
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": true
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "success": {
-                          "const": false
-                        },
-                        "err": {
-                          "type": "object",
-                          "properties": {
-                            "code": {
-                              "type": "number"
-                            },
-                            "err": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "code",
-                            "err"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "success",
-                        "err"
-                      ],
-                      "additionalProperties": false
+                    "data": {
+                      "$ref": "@/src/domain/session/schema.ts#sessionSchema"
                     }
-                  ]
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -387,6 +395,42 @@
                       "properties": {
                         "code": {
                           "const": 401
+                        },
+                        "err": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "err"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "err"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "const": false
+                    },
+                    "err": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": 500
                         },
                         "err": {
                           "type": "string"

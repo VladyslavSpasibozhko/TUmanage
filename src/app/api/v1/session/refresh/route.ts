@@ -1,5 +1,5 @@
 import { refreshSession } from "@/src/services/session";
-import { error } from "@/src/shared/utils";
+import { apiError, apiSuccess } from "@/src/app/api/_response";
 import { cookies } from "next/headers";
 
 export async function POST() {
@@ -14,10 +14,7 @@ export async function POST() {
     const result = await refreshSession(sessionId);
     if (!result.ok) {
       cookieStore.delete("session");
-      return Response.json(
-        { success: false, err: { code: 401, err: result.error } },
-        { status: 401 }
-      );
+      return apiError(result.error, 401);
     }
 
     const { data } = result;
@@ -26,11 +23,8 @@ export async function POST() {
       expires: data.expiredAt,
     });
 
-    return Response.json({ success: true, data });
+    return apiSuccess(data);
   } catch (err) {
-    return Response.json({
-      success: false,
-      err: { code: 500, err: error.getErrorMessage(err) },
-    });
+    return apiError(err, 500);
   }
 }

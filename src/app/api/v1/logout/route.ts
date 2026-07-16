@@ -1,5 +1,5 @@
 import { logout } from "@/src/services/logout";
-import { error } from "@/src/shared/utils";
+import { apiError, apiSuccess } from "@/src/app/api/_response";
 import { cookies } from "next/headers";
 
 export async function POST() {
@@ -10,17 +10,14 @@ export async function POST() {
     if (sessionId) {
       const result = await logout(sessionId);
       if (!result.ok) {
-        throw result.error;
+        return apiError(result.error, 400);
       }
     }
 
     cookieStore.delete("session");
 
-    return Response.json({ success: true, data: null });
+    return apiSuccess(null);
   } catch (err) {
-    return Response.json({
-      success: false,
-      err: { code: 500, err: error.getErrorMessage(err) },
-    });
+    return apiError(err, 500);
   }
 }

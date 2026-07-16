@@ -50,7 +50,7 @@ async function register({ name, email, password }: IRegisterInput) {
       return outcome.failure(session.error);
     }
 
-    return outcome.success(session.data);
+    return outcome.success({ session: session.data, user });
   } catch (err) {
     return outcome.failure(error.getErrorMessage(err));
   }

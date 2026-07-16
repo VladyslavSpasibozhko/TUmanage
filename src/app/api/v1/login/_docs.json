@@ -6,34 +6,47 @@
   "input": { "$ref": "@/src/domain/credential/schema.ts#credentialSchema" },
   "output": {
     "200": {
-      "anyOf": [
-        {
+      "type": "object",
+      "properties": {
+        "success": { "const": true },
+        "data": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" }
+      },
+      "required": ["success", "data"],
+      "additionalProperties": false
+    },
+    "400": {
+      "type": "object",
+      "properties": {
+        "success": { "const": false },
+        "err": {
           "type": "object",
           "properties": {
-            "success": { "const": true },
-            "data": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" }
+            "code": { "const": 400 },
+            "err": { "type": "string" }
           },
-          "required": ["success", "data"],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "success": { "const": false },
-            "err": {
-              "type": "object",
-              "properties": {
-                "code": { "type": "number" },
-                "err": { "type": "string" }
-              },
-              "required": ["code", "err"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["success", "err"],
+          "required": ["code", "err"],
           "additionalProperties": false
         }
-      ]
+      },
+      "required": ["success", "err"],
+      "additionalProperties": false
+    },
+    "500": {
+      "type": "object",
+      "properties": {
+        "success": { "const": false },
+        "err": {
+          "type": "object",
+          "properties": {
+            "code": { "const": 500 },
+            "err": { "type": "string" }
+          },
+          "required": ["code", "err"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["success", "err"],
+      "additionalProperties": false
     }
   }
 }

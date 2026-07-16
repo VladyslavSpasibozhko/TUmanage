@@ -14,19 +14,44 @@
       "type": "object",
       "properties": {
         "success": { "const": true },
-        "data": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" }
+        "data": {
+          "type": "object",
+          "properties": {
+            "session": { "$ref": "@/src/domain/session/schema.ts#sessionSchema" },
+            "user": { "$ref": "@/src/domain/user/schema.ts#userSchema" }
+          },
+          "required": ["session", "user"],
+          "additionalProperties": false
+        }
       },
       "required": ["success", "data"],
       "additionalProperties": false
     },
-    "200": {
+    "400": {
       "type": "object",
       "properties": {
         "success": { "const": false },
         "err": {
           "type": "object",
           "properties": {
-            "code": { "type": "number" },
+            "code": { "const": 400 },
+            "err": { "type": "string" }
+          },
+          "required": ["code", "err"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["success", "err"],
+      "additionalProperties": false
+    },
+    "500": {
+      "type": "object",
+      "properties": {
+        "success": { "const": false },
+        "err": {
+          "type": "object",
+          "properties": {
+            "code": { "const": 500 },
             "err": { "type": "string" }
           },
           "required": ["code", "err"],

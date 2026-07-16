@@ -1,5 +1,5 @@
 import { register } from "@/src/services/register";
-import { error } from "@/src/shared/utils";
+import { apiError, apiSuccess } from "@/src/app/api/_response";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
@@ -8,21 +8,18 @@ export async function POST(request: Request) {
 
     const result = await register({ name, email, password });
     if (!result.ok) {
-      throw result.error;
+      return apiError(result.error, 400);
     }
     const { data } = result;
     const cookieStore = await cookies();
 
-    cookieStore.set("session", data.id, {
+    cookieStore.set("session", data.session.id, {
       sameSite: "lax",
-      expires: data.expiredAt,
+      expires: data.session.expiredAt,
     });
 
-    return Response.json({ success: true, data }, { status: 201 });
+    return apiSuccess(data, 201);
   } catch (err) {
-    return Response.json({
-      success: false,
-      err: { code: 500, err: error.getErrorMessage(err) },
-    });
+    return apiError(err, 500);
   }
 }
