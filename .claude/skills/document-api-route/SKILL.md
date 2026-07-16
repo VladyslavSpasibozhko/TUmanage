@@ -1,18 +1,25 @@
-# /document-api-route
+---
+name: document-api-route
+description: Generate or update the _docs.json file for one or more API routes under src/app/api/. Triggers automatically on requests like "document this api route", "update _docs.json for X", "generate docs for the X endpoint", or after a route.ts is added/changed. Also invoked by write-api-route as its final step.
+---
+
+# document-api-route
 
 Generate or update the `_docs.json` file for one or more API routes under `src/app/api/`.
 
 ## When to use
 
-Run this command whenever you:
-- Add a new `route.ts` file (new endpoint)
-- Add or remove an HTTP method export (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) in an existing `route.ts`
-- Change the service a route calls, or that service's input type
-- Change the shape of a route's `Response.json(...)` calls (new field, new status code, new error case)
+Run this whenever a `route.ts`:
+- Is newly added (new endpoint)
+- Gains or loses an HTTP method export (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`)
+- Changes which service it calls, or that service's input type
+- Changes the shape of its `Response.json(...)` calls (new field, new status code, new error case)
 
-## What this command does
+## What this does
 
-For each target `route.ts`, read the file and its dependencies, then write or update a sibling `_docs.json` in the same folder. Do not modify `route.ts` or any other source file — documentation only.
+For each target `route.ts`, read the file and its dependencies, then write or update a sibling
+`_docs.json` in the same folder. Do not modify `route.ts` or any other source file — documentation
+only.
 
 ---
 
